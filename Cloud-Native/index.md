@@ -6,16 +6,22 @@ https://www.youtube.com/watch?v=rdn5U3rUFjQ
 ## Cloud Event
 
 ## Terraform
+https://www.terraform.io/
+
+## Envoy
+https://www.envoyproxy.io/
 
 ## Istio
+https://istio.io/latest/
 
 ## CluserAPI
+https://cluster-api.sigs.k8s.io/
 https://www.youtube.com/watch?v=rdn5U3rUFjQ
 
 # Public Cloud API Document
 AWS, GCP, AZURE
 
-## Opentracint
+## Opentracing
 https://opentracing.io/
 
 ## Backstage
