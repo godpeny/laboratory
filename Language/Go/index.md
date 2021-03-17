@@ -30,3 +30,6 @@ https://www.youtube.com/watch?v=ojhFQNgyZO4
 
 ## CLI Pattern
 https://clig.dev/
+
+## Go Vendor Experiment
+https://go.googlesource.com/proposal/+/master/design/25719-go15vendor.md
