@@ -17,3 +17,6 @@ https://kubebuilder.io/
 ## kustomize
 
 ## Custom Admission Controller
+
+# Authorization
+https://coffeewhale.com/kubernetes/authentication/x509/2020/05/02/auth01/
