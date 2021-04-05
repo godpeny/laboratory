@@ -8,3 +8,6 @@ https://netflixtechblog.com/full-cycle-developers-at-netflix-a08c31f83249
 https://www.verica.io/verification-vs-validation/
 https://devops.com/assessment-of-devops-capabilities-5-dimensions-explained/
 netflix streaming : https://youtu.be/mpLsAm557-o
+
+## Open API
+https://davidgarcia.dev/posts/how-to-split-open-api-spec-into-multiple-files/
