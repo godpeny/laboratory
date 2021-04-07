@@ -18,8 +18,11 @@ https://istio.io/latest/
 https://cluster-api.sigs.k8s.io/
 https://www.youtube.com/watch?v=rdn5U3rUFjQ
 
-# Public Cloud API Document
-AWS, GCP, AZURE
+## Public Cloud API Document
+AWS, GCP, AZURE, DigitalOcean
+
+### Digital Ocean
+https://developers.digitalocean.com/documentation/v2/#introduction
 
 ## Opentracing
 https://opentracing.io/
