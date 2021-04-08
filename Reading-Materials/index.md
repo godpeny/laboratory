@@ -9,6 +9,7 @@ https://www.verica.io/verification-vs-validation/
 https://devops.com/assessment-of-devops-capabilities-5-dimensions-explained/
 netflix streaming : https://youtu.be/mpLsAm557-o
 https://joeyhoer.com/flat-vs-hierarchical-url-structure-420f178c
+OAUTH : https://velog.io/@sonypark/OAuth2-%EC%9D%B8%EC%A6%9D
 
 ## Open API
 https://davidgarcia.dev/posts/how-to-split-open-api-spec-into-multiple-files/
