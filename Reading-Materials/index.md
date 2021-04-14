@@ -11,6 +11,9 @@ netflix streaming : https://youtu.be/mpLsAm557-o
 https://joeyhoer.com/flat-vs-hierarchical-url-structure-420f178c
 OAUTH : https://velog.io/@sonypark/OAuth2-%EC%9D%B8%EC%A6%9D
 Quic : https://www.slideshare.net/deview/quic-67614063
+Starbucks Does Not Use Two-Phase Commit : https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
+Starbucks Does Not Use Two-Phase Commit(Korean) : https://sunnykwak.tistory.com/100
+DDD : http://cqrs.nu
 
 ## Open API
 https://davidgarcia.dev/posts/how-to-split-open-api-spec-into-multiple-files/
