@@ -8,6 +8,8 @@ https://github.com/KeKe-Li/books/tree/master/Go
 ## Project Layout
 https://github.com/golang-standards/project-layout
 
+https://golang.org/src/runtime/HACKING.md
+https://novemberde.github.io/golang/2021/04/05/Golang-HACKING.html
 https://dave.cheney.net/practical-go/presentations/qcon-china.html
 https://www.youtube.com/watch?v=8TLiGHJTlig 
 
