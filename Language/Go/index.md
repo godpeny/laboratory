@@ -14,8 +14,13 @@ https://dave.cheney.net/practical-go/presentations/qcon-china.html
 https://www.youtube.com/watch?v=8TLiGHJTlig 
 
 ## goreleaser
+https://goreleaser.com/
+https://github.com/goreleaser/goreleaser
 
 ## grpc
+https://grpc.io/
+https://github.com/grpc/grpc
+https://github.com/grpc/grpc-go
 
 ## error
 https://blog.golang.org/error-handling-and-go
