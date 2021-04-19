@@ -14,6 +14,7 @@ Quic : https://www.slideshare.net/deview/quic-67614063
 Starbucks Does Not Use Two-Phase Commit : https://www.enterpriseintegrationpatterns.com/ramblings/18_starbucks.html
 Starbucks Does Not Use Two-Phase Commit(Korean) : https://sunnykwak.tistory.com/100
 DDD : http://cqrs.nu
+Duck Typing : https://ko.wikipedia.org/wiki/%EB%8D%95_%ED%83%80%EC%9D%B4%ED%95%91
 
 ## Open API
 https://davidgarcia.dev/posts/how-to-split-open-api-spec-into-multiple-files/
