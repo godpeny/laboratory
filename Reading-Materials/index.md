@@ -15,6 +15,10 @@ Starbucks Does Not Use Two-Phase Commit : https://www.enterpriseintegrationpatte
 Starbucks Does Not Use Two-Phase Commit(Korean) : https://sunnykwak.tistory.com/100
 DDD : http://cqrs.nu
 Duck Typing : https://ko.wikipedia.org/wiki/%EB%8D%95_%ED%83%80%EC%9D%B4%ED%95%91
+https://en.wikipedia.org/wiki/ABA_problem
+https://ko.wikipedia.org/wiki/소프트웨어_트랜잭셔널_메모리
+https://www.slideshare.net/deview/242-naver2
+http://ndcreplay.nexon.com/NDC2014/sessions/NDC2014_0048.html
 
 ## Open API
 https://davidgarcia.dev/posts/how-to-split-open-api-spec-into-multiple-files/
