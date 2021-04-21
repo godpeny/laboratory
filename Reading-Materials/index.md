@@ -19,6 +19,7 @@ https://en.wikipedia.org/wiki/ABA_problem
 https://ko.wikipedia.org/wiki/소프트웨어_트랜잭셔널_메모리
 https://www.slideshare.net/deview/242-naver2
 http://ndcreplay.nexon.com/NDC2014/sessions/NDC2014_0048.html
+https://dl.acm.org/doi/book/10.5555/974955
 
 ## Open API
 https://davidgarcia.dev/posts/how-to-split-open-api-spec-into-multiple-files/
