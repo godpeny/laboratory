@@ -52,3 +52,4 @@ gomock https://github.com/golang/mock
 mockery https://github.com/vektra/mockery
 testify https://github.com/stretchr/testify
 sqlmock https://github.com/DATA-DOG/go-sqlmock
+https://qvault.io/clean-code/writing-good-unit-tests-dont-mock-database-connections/
