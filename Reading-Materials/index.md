@@ -22,6 +22,7 @@ http://ndcreplay.nexon.com/NDC2014/sessions/NDC2014_0048.html
 https://dl.acm.org/doi/book/10.5555/974955
 SSE : https://hamait.tistory.com/792
 Redux tool-kit : https://redux-toolkit.js.org/tutorials/quick-start
+test : https://toss.im/slash-21/sessions/1-6?fbclid=IwAR3ND2v8cgwqFt8e8sYP3upEkSdKcQV25hUXX0CrULDMwkphnn_UpTYIBpc
 
 ## Open API
 https://davidgarcia.dev/posts/how-to-split-open-api-spec-into-multiple-files/
