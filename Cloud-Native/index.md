@@ -49,3 +49,6 @@ Logstash: https://github.com/elastic/logstash
 
 ## KNative
 https://knative.dev/
+
+## Libvirt
+https://libvirt.org/
