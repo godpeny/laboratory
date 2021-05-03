@@ -26,3 +26,7 @@ test : https://toss.im/slash-21/sessions/1-6?fbclid=IwAR3ND2v8cgwqFt8e8sYP3upEkS
 
 ## Open API
 https://davidgarcia.dev/posts/how-to-split-open-api-spec-into-multiple-files/
+
+## IAM Policy
+https://www.youtube.com/watch?v=iPKaylieTV8
+https://musma.github.io/2019/11/05/about-aws-iam-policy.html
