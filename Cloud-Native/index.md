@@ -53,3 +53,6 @@ https://knative.dev/
 ## Libvirt
 https://libvirt.org/
 https://github.com/libvirt/libvirt
+
+## CIVO provider
+https://www.civo.com/
