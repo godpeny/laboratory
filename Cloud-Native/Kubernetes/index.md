@@ -31,3 +31,6 @@ https://archive.fosdem.org/2019/schedule/event/containers_firecracker/attachment
 ## Multi Container Design Pattern
 https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/
 https://gruuuuu.github.io/cloud/design-pattern/
+
+## Webhook
+https://ddii.dev/kubernetes/mutating-web-hook/#
