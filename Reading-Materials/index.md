@@ -36,3 +36,10 @@ https://musma.github.io/2019/11/05/about-aws-iam-policy.html
 ## DB Paper
 
 https://vldb.org/2021/
+
+## Frontend
+
+### React
+
+https://blog.bitsrc.io/best-practices-with-react-hooks-69d7e4af69a7
+https://rajeshnaroth.medium.com/managing-async-state-with-hooks-and-redux-8ab675ae6bdf
