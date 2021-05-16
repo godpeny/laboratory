@@ -71,3 +71,9 @@ https://qvault.io/clean-code/writing-good-unit-tests-dont-mock-database-connecti
 ## goda(pkg dependency analysis tool)
 
 https://github.com/loov/goda
+
+### DDD
+
+https://github.com/marcusolsson/goddd
+https://threedots.tech/post/ddd-lite-in-go-introduction/
+https://dev.to/stevensunflash/using-domain-driven-design-ddd-in-golang-3ee5
