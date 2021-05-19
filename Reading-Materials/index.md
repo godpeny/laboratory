@@ -43,3 +43,7 @@ https://vldb.org/2021/
 
 https://blog.bitsrc.io/best-practices-with-react-hooks-69d7e4af69a7
 https://rajeshnaroth.medium.com/managing-async-state-with-hooks-and-redux-8ab675ae6bdf
+
+### Typescript
+
+https://heropy.blog/2020/01/27/typescript/
