@@ -72,8 +72,12 @@ https://qvault.io/clean-code/writing-good-unit-tests-dont-mock-database-connecti
 
 https://github.com/loov/goda
 
-### DDD
+## DDD
 
 https://github.com/marcusolsson/goddd
 https://threedots.tech/post/ddd-lite-in-go-introduction/
 https://dev.to/stevensunflash/using-domain-driven-design-ddd-in-golang-3ee5
+
+## Efective Go
+
+https://github.com/golangkorea/effective-go/blob/master/names.md#%ED%8C%A8%ED%82%A4%EC%A7%80%EB%AA%85
