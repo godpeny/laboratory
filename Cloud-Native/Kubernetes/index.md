@@ -46,3 +46,7 @@ https://ddii.dev/kubernetes/mutating-web-hook/#
 ## kopf (python framework for k8s operator)
 
 https://github.com/nolar/kopf
+
+## kubernetes external secret
+
+https://www.godaddy.com/engineering/2019/04/16/kubernetes-external-secrets/
