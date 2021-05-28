@@ -50,3 +50,7 @@ https://github.com/nolar/kopf
 ## kubernetes external secret
 
 https://www.godaddy.com/engineering/2019/04/16/kubernetes-external-secrets/
+
+## Argo CD Operator
+
+https://argocd-operator.readthedocs.io/en/latest/
