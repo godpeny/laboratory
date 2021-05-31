@@ -76,3 +76,8 @@ https://www.civo.com/
 ## OpenShift Katacoda playground
 
 https://www.katacoda.com/courses/openshift/playgrounds/openshift47
+
+## Cloud-Init
+
+https://cloudinit.readthedocs.io/en/latest/#
+https://github.com/canonical/cloud-init/blob/master/doc/rtd/index.rst
