@@ -52,3 +52,7 @@ https://heropy.blog/2020/01/27/typescript/
 ### DB Transaction
 
 https://ko.wikipedia.org/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4_%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98
+
+### Virtual Hosting
+
+https://en.wikipedia.org/wiki/Virtual_hosting
