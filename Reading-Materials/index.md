@@ -56,3 +56,8 @@ https://ko.wikipedia.org/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8
 ### Virtual Hosting
 
 https://en.wikipedia.org/wiki/Virtual_hosting
+
+### Pagination
+
+https://www.google.com/search?q=pagination&oq=pagination&aqs=chrome.0.69i59j35i39l2j0i433j69i60l4.1857j0j7&sourceid=chrome&ie=UTF-8
+https://tech.asimio.net/2020/04/16/Adding-HAL-pagination-links-to-RESTful-applications-using-Spring-HATEOAS.html
