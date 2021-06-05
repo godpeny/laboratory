@@ -85,3 +85,8 @@ https://github.com/golangkorea/effective-go/blob/master/names.md#%ED%8C%A8%ED%82
 ## go with pprof
 
 https://dev.to/agamm/how-to-profile-go-with-pprof-in-30-seconds-592a
+
+## GROM
+
+https://gorm.io/index.html
+https://github.com/go-gorm/gorm
