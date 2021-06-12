@@ -2,6 +2,8 @@
 
 ## Basic
 
+https://www.tutorialspoint.com/python/python_basic_syntax.htm
+
 ## FastAPI
 
 https://fastapi.tiangolo.com/ko/
