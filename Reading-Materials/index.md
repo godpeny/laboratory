@@ -38,26 +38,24 @@ https://musma.github.io/2019/11/05/about-aws-iam-policy.html
 
 https://vldb.org/2021/
 
-## Frontend
+## DB Transaction
 
-### React
+https://ko.wikipedia.org/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4_%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98
+
+## Virtual Hosting
+
+https://en.wikipedia.org/wiki/Virtual_hosting
+
+## React
 
 https://blog.bitsrc.io/best-practices-with-react-hooks-69d7e4af69a7
 https://rajeshnaroth.medium.com/managing-async-state-with-hooks-and-redux-8ab675ae6bdf
 
-### Typescript
+## Typescript
 
 https://heropy.blog/2020/01/27/typescript/
 
-### DB Transaction
-
-https://ko.wikipedia.org/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4_%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98
-
-### Virtual Hosting
-
-https://en.wikipedia.org/wiki/Virtual_hosting
-
-### Pagination
+## Pagination
 
 https://www.google.com/search?q=pagination&oq=pagination&aqs=chrome.0.69i59j35i39l2j0i433j69i60l4.1857j0j7&sourceid=chrome&ie=UTF-8
 https://tech.asimio.net/2020/04/16/Adding-HAL-pagination-links-to-RESTful-applications-using-Spring-HATEOAS.html
