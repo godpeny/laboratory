@@ -1,5 +1,5 @@
 # Design Patterns In Go
-``https://www.udemy.com/course/design-patterns-go``
+``https://www.udemy.com/course/design-pat terns-go``
 
 ## SOLID Design Pattern
 **The principles are a subset of many principles promoted by American software engineer and instructor Robert C. Martin, first introduced in his 2000 paper Design Principles and Design Patterns discussing software rot.**  
