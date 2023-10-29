@@ -1,0 +1,3 @@
+python -m gensim.scripts.word2vec2tensor --input ../../model/eng_w2v --output eng_w2v_vis
+
+https://projector.tensorflow.org/
