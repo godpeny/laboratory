@@ -31,6 +31,17 @@ def gradcheck_naive(f, x):
 
         ### YOUR CODE HERE:
 
+        hs = np.zeros_like(x)
+        hs[ix] = h
+
+        random.setstate(rndstate)
+        fx1, _ = f(x + hs)
+
+        random.setstate(rndstate)
+        fx2, _ = f(x - hs)
+
+        numgrad = (fx1 - fx2) / (2*h)
+
         ### END YOUR CODE
 
         # Compare gradients
@@ -76,3 +87,15 @@ def your_sanity_checks():
 if __name__ == "__main__":
     sanity_check()
     your_sanity_checks()
+
+
+"""
+        random.setstate(rndstate)
+        fx1, _ = f(x[ix] + (1*h))
+
+        random.setstate(rndstate)
+
+        fx2, _ = f(x[ix] - (1*h))
+
+        numgrad = (fx1 - fx2) / (2*h)
+"""

@@ -23,6 +23,12 @@ def forward_backward_prop(data, labels, params, dimensions):
                and output dimension
  """
 
+ print("data : ", data.shape)
+ print("labels : ", labels.shape)
+ print("params : ", params.shape)
+ print("dimension : ", dimensions)
+
+
  ### Unpack network parameters (do not modify)
  ofs = 0
  Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])
@@ -36,9 +42,29 @@ def forward_backward_prop(data, labels, params, dimensions):
  b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
  ### YOUR CODE HERE: forward propagation
+
+ h = np.dot(data, W1) + b1  # (M, H)
+ h = sigmoid(h)
+
+ y_hat = np.dot(h, W2) + b2  # (M, Dy)
+ y_hat = softmax(y_hat)
+
  ### END YOUR CODE
 
+
  ### YOUR CODE HERE: backward propagation
+
+ cost = -np.sum(labels * np.log(y_hat))
+
+ d3 = y_hat - labels
+ gradW2 = np.dot(h.T, d3)
+ gradb2 = np.sum(d3, axis=0)
+
+ dh = np.dot(d3, W2.T)
+ dl1 = dh * sigmoid_grad(h)
+ gradW1 = np.dot(data.T, dl1)
+ gradb1 = np.sum(dl1, axis=0)
+
  ### END YOUR CODE
 
  ### Stack gradients (do not modify)
@@ -59,7 +85,7 @@ def sanity_check():
  dimensions = [10, 5, 10]
  data = np.random.randn(N, dimensions[0])   # each row will be a datum
  labels = np.zeros((N, dimensions[2]))
- for i in xrange(N):
+ for i in range(N):
   labels[i, random.randint(0,dimensions[2]-1)] = 1
 
  params = np.random.randn((dimensions[0] + 1) * dimensions[1] + (
