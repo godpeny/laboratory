@@ -175,12 +175,12 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
 def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
                          word2vecCostAndGradient=softmaxCostAndGradient):
-    batchsize = 50
+    batchsize = 1 # !!!! change to 50 !!!!!
     cost = 0.0
     grad = np.zeros(wordVectors.shape)
     N = wordVectors.shape[0]
-    inputVectors = wordVectors[:N / 2, :]
-    outputVectors = wordVectors[N / 2:, :]
+    inputVectors = wordVectors[:int(N/2), :]
+    outputVectors = wordVectors[int(N/2):, :]
     for i in range(batchsize):
         C1 = random.randint(1, C)
         centerword, context = dataset.getRandomContext(C1)
@@ -194,8 +194,8 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
             centerword, C1, context, tokens, inputVectors, outputVectors,
             dataset, word2vecCostAndGradient)
         cost += c / batchsize / denom
-        grad[:N / 2, :] += gin / batchsize / denom
-        grad[N / 2:, :] += gout / batchsize / denom
+        grad[:int(N/2), :] += gin / batchsize / denom
+        grad[int(N/2):, :] += gout / batchsize / denom
 
     return cost, grad
 
