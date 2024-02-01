@@ -16,6 +16,11 @@ def normalizeRows(x):
     """
 
     ### YOUR CODE HERE
+    ### L2 Normalization
+    x.astype('float32')
+    for idx, row in enumerate(x):
+        div = np.sqrt(np.sum(row**2))
+        x[idx] = row/div
 
     ### END YOUR CODE
 
@@ -60,12 +65,22 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
 
     ### YOUR CODE HERE
     ## Gradient for $\hat{\bm{v}}$:
+    U = outputVectors # (5,3) - output vectors
+    v_ = predicted # (1,3) - vector of center word
 
     #  Calculate the predictions:
+    s = softmax(np.dot(v_, U.T)) # (1,5)
 
     #  Calculate the cost:
+    cost = -np.log(s[target]) # since y is one-hot vector, target yi is 1 and other yi are all 0.
 
     #  Gradients
+    # predicted probability - actual probability (which is 1 for the correct class and 0 for others)
+    s_ = s.copy()
+    s_[target] -= 1.0 # (a-0, b-0, c-1, d-0, e-0)
+
+    grad = np.outer(s_, U) # (5,3)
+    gradPred = np.dot(s_.T, v_) # (5,3)
 
     ### END YOUR CODE
 
@@ -100,7 +115,7 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
 
     # Sampling of indices is done for you. Do not modify this if you
     # wish to match the autograder and receive points!
-    indices = [target]
+    indices == [target]
     indices.extend(getNegativeSamples(target, dataset, K))
 
     ### YOUR CODE HERE
@@ -139,6 +154,8 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
+
+    word2vecCostAndGradient(predicted=inputVectors[0:1,:], outputVectors=outputVectors, target=1, dataset="")
 
     ### END YOUR CODE
 
