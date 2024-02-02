@@ -115,10 +115,23 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
 
     # Sampling of indices is done for you. Do not modify this if you
     # wish to match the autograder and receive points!
-    indices == [target]
-    indices.extend(getNegativeSamples(target, dataset, K))
+    indices = [target] # [0]
+    indices.extend(getNegativeSamples(target, dataset, K)) # [0, 1, 2, 1, 3 ...]
 
     ### YOUR CODE HERE
+
+    print('indices')
+    print(indices)
+
+    u_o = outputVectors # (5,3)
+    u_k = np.array([indices]) # (1,11)
+    v_c = predicted # (1,3)
+
+    cost = -np.log(sigmoid(np.dot(u_o, v_c.T))) - np.sum(np.log(sigmoid(np.dot(-1*u_k.T, v_c)))) # (5,1)
+
+    grad = np.dot((sigmoid(np.dot(u_o, v_c.T)) - 1).T, u_o) - np.sum(np.dot(u_k, (sigmoid(np.dot(-1*u_k.T, v_c)) - 1))) # (1,3)
+
+    gradPred = -np.dot((sigmoid(np.dot(-1*u_k.T, v_c)) - 1), v_c.T) # (11,1)
 
     ### END YOUR CODE
 
@@ -155,7 +168,7 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
     ### YOUR CODE HERE
 
-    word2vecCostAndGradient(predicted=inputVectors[0:1,:], outputVectors=outputVectors, target=1, dataset="")
+    negSamplingCostAndGradient(predicted=inputVectors[0:1,:], target=0, outputVectors=outputVectors, dataset=dataset)
 
     ### END YOUR CODE
 
@@ -231,6 +244,9 @@ def test_word2vec():
 
     dataset.sampleTokenIdx = dummySampleTokenIdx
     dataset.getRandomContext = getRandomContext
+
+    print('dataset')
+    print(dataset)
 
     random.seed(31415)
     np.random.seed(9265)
