@@ -120,18 +120,20 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
 
     ### YOUR CODE HERE
 
-    print('indices')
-    print(indices)
-
-    u_o = outputVectors # (5,3)
-    u_k = np.array([indices]) # (1,11)
+    U = np.array([indices])[:,1:] # (1,10)
+    u_o = np.array([outputVectors[target]]) # (1,3)
     v_c = predicted # (1,3)
 
-    cost = -np.log(sigmoid(np.dot(u_o, v_c.T))) - np.sum(np.log(sigmoid(np.dot(-1*u_k.T, v_c)))) # (5,1)
+    cost = -np.log(sigmoid(np.dot(u_o, v_c.T))) - np.sum(np.log(sigmoid(np.dot(-1*U.T, v_c)))) # (1,1)
 
-    grad = np.dot((sigmoid(np.dot(u_o, v_c.T)) - 1).T, u_o) - np.sum(np.dot(u_k, (sigmoid(np.dot(-1*u_k.T, v_c)) - 1))) # (1,3)
+    gradPred = np.dot((sigmoid(np.dot(u_o, v_c.T)) - 1), u_o) - np.sum(np.dot(U, (sigmoid(np.dot(-1*U.T, v_c)) - 1))) # (1,3)
 
-    gradPred = -np.dot((sigmoid(np.dot(-1*u_k.T, v_c)) - 1), v_c.T) # (11,1)
+    grad = np.zeros(outputVectors.shape) # (5,3)
+    grad[target] = np.dot((sigmoid(np.dot(u_o, v_c.T)) - 1), v_c) # (1,3)
+
+    for i, k in enumerate(U.flat):
+        u_k = np.array([k])
+        grad[k] -= np.dot((sigmoid(np.dot(-1*u_k.T, v_c)) - 1), v_c.T)
 
     ### END YOUR CODE
 
