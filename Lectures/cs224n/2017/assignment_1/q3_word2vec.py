@@ -119,7 +119,6 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices.extend(getNegativeSamples(target, dataset, K)) # [0, 1, 2, 1, 3 ...]
 
     ### YOUR CODE HERE
-
     U = np.array([indices])[:,1:] # (1,10)
     u_o = np.array([outputVectors[target]]) # (1,3)
     v_c = predicted # (1,3)
@@ -131,7 +130,7 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     grad = np.zeros(outputVectors.shape) # (5,3)
     grad[target] = np.dot((sigmoid(np.dot(u_o, v_c.T)) - 1), v_c) # (1,3)
 
-    for i, k in enumerate(U.flat):
+    for i, k in enumerate(U[0]):
         u_k = np.array([k])
         grad[k] -= np.dot((sigmoid(np.dot(-1*u_k.T, v_c)) - 1), v_c.T)
 
@@ -169,8 +168,16 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
+    v_c_idx = tokens.get(currentWord)
+    v_c = np.array([inputVectors[v_c_idx]])  # (1,3)
 
-    negSamplingCostAndGradient(predicted=inputVectors[0:1,:], target=0, outputVectors=outputVectors, dataset=dataset)
+    for word_idx, word in enumerate(contextWords):
+        target = tokens.get(word)
+        _cost, _gradIn, _gradOut = negSamplingCostAndGradient(predicted=v_c, target=target, outputVectors=outputVectors, dataset=dataset)
+
+        cost += _cost[0] # (1,)
+        gradIn[v_c_idx] += _gradIn[0] # (5,3)
+        gradOut += _gradOut # (5,3)
 
     ### END YOUR CODE
 
@@ -195,6 +202,17 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
+    predicted_indices = [tokens[word] for word in contextWords]
+    predicted_vectors = inputVectors[predicted_indices]
+    predicted = np.array([np.sum(predicted_vectors, axis=0)])
+
+    v_c_idx = tokens.get(currentWord)
+
+    _cost, _gradIn, _gradOut = negSamplingCostAndGradient(predicted=predicted, target=v_c_idx, outputVectors=outputVectors, dataset=dataset)
+
+    cost = _cost[0] # (1,)
+    gradIn[predicted_indices] += _gradIn[0] # (5,3)
+    gradOut = _gradOut # (5,3)
 
     ### END YOUR CODE
 
@@ -207,7 +225,7 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
 def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
                          word2vecCostAndGradient=softmaxCostAndGradient):
-    batchsize = 1 # !!!! change to 50 !!!!!
+    batchsize = 50
     cost = 0.0
     grad = np.zeros(wordVectors.shape)
     N = wordVectors.shape[0]
@@ -246,9 +264,6 @@ def test_word2vec():
 
     dataset.sampleTokenIdx = dummySampleTokenIdx
     dataset.getRandomContext = getRandomContext
-
-    print('dataset')
-    print(dataset)
 
     random.seed(31415)
     np.random.seed(9265)
