@@ -72,15 +72,15 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     s = softmax(np.dot(v_, U.T)) # (1,5)
 
     #  Calculate the cost:
-    cost = -np.log(s[target]) # since y is one-hot vector, target yi is 1 and other yi are all 0.
+    cost = -np.log(s[0][target]) # since y is one-hot vector, target yi is 1 and other yi are all 0.
 
     #  Gradients
     # predicted probability - actual probability (which is 1 for the correct class and 0 for others)
-    s_ = s.copy()
-    s_[target] -= 1.0 # (a-0, b-0, c-1, d-0, e-0)
+    s_ = s.copy() # (1,5)
+    s_[0][target] -= 1.0 # (a-0, b-0, c-1, d-0, e-0)
 
-    grad = np.outer(s_, U) # (5,3)
-    gradPred = np.dot(s_.T, v_) # (5,3)
+    grad = np.outer(s_, v_) # (5,3)
+    gradPred = np.dot(s_, U) # (1,3)
 
     ### END YOUR CODE
 
@@ -173,9 +173,9 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
     for word_idx, word in enumerate(contextWords):
         target = tokens.get(word)
-        _cost, _gradIn, _gradOut = negSamplingCostAndGradient(predicted=v_c, target=target, outputVectors=outputVectors, dataset=dataset)
+        _cost, _gradIn, _gradOut = word2vecCostAndGradient(predicted=v_c, target=target, outputVectors=outputVectors, dataset=dataset)
 
-        cost += _cost[0] # (1,)
+        cost += _cost # (1,)
         gradIn[v_c_idx] += _gradIn[0] # (5,3)
         gradOut += _gradOut # (5,3)
 
@@ -208,9 +208,9 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
     v_c_idx = tokens.get(currentWord)
 
-    _cost, _gradIn, _gradOut = negSamplingCostAndGradient(predicted=predicted, target=v_c_idx, outputVectors=outputVectors, dataset=dataset)
+    _cost, _gradIn, _gradOut = word2vecCostAndGradient(predicted=predicted, target=v_c_idx, outputVectors=outputVectors, dataset=dataset)
 
-    cost = _cost[0] # (1,)
+    cost = _cost # (1,)
     gradIn[predicted_indices] += _gradIn[0] # (5,3)
     gradOut = _gradOut # (5,3)
 
