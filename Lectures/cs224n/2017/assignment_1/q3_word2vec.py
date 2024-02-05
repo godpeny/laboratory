@@ -79,7 +79,7 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     s_ = s.copy() # (1,5)
     s_[0][target] -= 1.0 # (a-0, b-0, c-1, d-0, e-0)
 
-    grad = np.outer(s_, v_) # (5,3)
+    grad = np.dot(s_.T, v_) # (5,3)
     gradPred = np.dot(s_, U) # (1,3)
 
     ### END YOUR CODE
@@ -119,20 +119,23 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices.extend(getNegativeSamples(target, dataset, K)) # [0, 1, 2, 1, 3 ...]
 
     ### YOUR CODE HERE
-    U = np.array([indices])[:,1:] # (1,10)
+    neg_samples = indices[1:] # (1,10)
+
+    u_k = outputVectors[neg_samples] # (10,3)
     u_o = np.array([outputVectors[target]]) # (1,3)
     v_c = predicted # (1,3)
 
-    cost = -np.log(sigmoid(np.dot(u_o, v_c.T))) - np.sum(np.log(sigmoid(np.dot(-1*U.T, v_c)))) # (1,1)
+    s_1 = sigmoid(np.dot(u_o, v_c.T)) # (1,1)
+    s_2 = sigmoid(np.dot((-1*u_k), v_c.T)) # (10,1)
 
-    gradPred = np.dot((sigmoid(np.dot(u_o, v_c.T)) - 1), u_o) - np.sum(np.dot(U, (sigmoid(np.dot(-1*U.T, v_c)) - 1))) # (1,3)
+    cost = -1 * np.log(s_1) - np.sum(np.log(s_2))
 
-    grad = np.zeros(outputVectors.shape) # (5,3)
-    grad[target] = np.dot((sigmoid(np.dot(u_o, v_c.T)) - 1), v_c) # (1,3)
+    gradPred = np.dot(s_1, u_o) - np.sum(np.dot((s_2 - 1).T, u_k))
 
-    for i, k in enumerate(U[0]):
-        u_k = np.array([k])
-        grad[k] -= np.dot((sigmoid(np.dot(-1*u_k.T, v_c)) - 1), v_c.T)
+    grad = np.zeros(outputVectors.shape)
+    grad[target] = np.dot((s_1 - 1), v_c)
+    for _, k in enumerate(neg_samples):
+        grad[k] -= np.dot((s_2[k] - 1), v_c)
 
     ### END YOUR CODE
 
