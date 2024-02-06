@@ -167,8 +167,8 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     """
 
     cost = 0.0
-    gradIn = np.zeros(inputVectors.shape)
-    gradOut = np.zeros(outputVectors.shape)
+    gradIn = np.zeros(inputVectors.shape) # (5,3)
+    gradOut = np.zeros(outputVectors.shape) # (5,3)
 
     ### YOUR CODE HERE
     v_c_idx = tokens.get(currentWord)
@@ -179,7 +179,7 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
         _cost, _gradIn, _gradOut = word2vecCostAndGradient(predicted=v_c, target=target, outputVectors=outputVectors, dataset=dataset)
 
         cost += _cost # (1,)
-        gradIn[v_c_idx] += _gradIn[0] # (5,3)
+        gradIn[v_c_idx] += _gradIn[0] # (1,3)
         gradOut += _gradOut # (5,3)
 
     ### END YOUR CODE
@@ -201,8 +201,8 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     """
 
     cost = 0.0
-    gradIn = np.zeros(inputVectors.shape)
-    gradOut = np.zeros(outputVectors.shape)
+    gradIn = np.zeros(inputVectors.shape) # (5,3)
+    gradOut = np.zeros(outputVectors.shape) # (5,3)
 
     ### YOUR CODE HERE
     predicted_indices = [tokens[word] for word in contextWords]
@@ -214,7 +214,7 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     _cost, _gradIn, _gradOut = word2vecCostAndGradient(predicted=predicted, target=v_c_idx, outputVectors=outputVectors, dataset=dataset)
 
     cost = _cost # (1,)
-    gradIn[predicted_indices] += _gradIn[0] # (5,3)
+    gradIn[predicted_indices] += _gradIn[0] # (1,3)
     gradOut = _gradOut # (5,3)
 
     ### END YOUR CODE
