@@ -21,17 +21,19 @@ def load_saved_params():
             st = iter
 
     if st > 0:
-        with open("saved_params_%d.npy" % st, "r") as f:
-            params = pickle.load(f)
+        params_file = "saved_params_%d.npy" % st
+        state_file = "saved_state_%d.pickle" % st
+        params = np.load(params_file)
+        with open(state_file, "rb") as f:
             state = pickle.load(f)
         return st, params, state
     else:
         return st, None, None
 
-
 def save_params(iter, params):
-    with open("saved_params_%d.npy" % iter, "w") as f:
-        pickle.dump(params, f)
+    params_file = "saved_params_%d.npy" % iter
+    np.save(params_file, params)
+    with open("saved_state_%d.pickle" % iter, "wb") as f:
         pickle.dump(random.getstate(), f)
 
 
