@@ -134,8 +134,8 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
 
     grad = np.zeros(outputVectors.shape)
     grad[target] = np.dot((s_1 - 1), v_c)
-    for _, k in enumerate(neg_samples):
-        grad[k] -= np.dot((s_2[k] - 1), v_c)
+    for i, k in enumerate(neg_samples):
+        grad[k] -= np.dot((s_2[i] - 1), v_c)
 
     ### END YOUR CODE
 
