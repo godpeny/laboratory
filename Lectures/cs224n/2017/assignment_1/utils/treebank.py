@@ -51,7 +51,7 @@ class StanfordSentiment:
             return self._sentences
 
         sentences = []
-        with open(self.path + "/datasetSentences.txt", "r") as f:
+        with open(self.path + "/datasetSentences.txt", "rb") as f:
             first = True
             for line in f:
                 if first:
@@ -60,7 +60,7 @@ class StanfordSentiment:
 
                 splitted = line.strip().split()[1:]
                 # Deal with some peculiar encoding issues with this file
-                sentences += [[w.lower() for w in splitted]]
+                sentences += [[w.lower().decode("utf-8").encode('latin1').decode('utf-8') for w in splitted]]
 
         self._sentences = sentences
         self._sentlengths = np.array([len(s) for s in sentences])
