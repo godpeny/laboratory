@@ -50,6 +50,12 @@ def getSentenceFeatures(tokens, wordVectors, sentence):
     sentVector = np.zeros((wordVectors.shape[1],))
 
     ### YOUR CODE HERE
+
+    for word in sentence:
+        sentVector += wordVectors[tokens[word]]
+
+    sentVector /= len(sentence)
+    
     ### END YOUR CODE
 
     assert sentVector.shape == (wordVectors.shape[1],)
@@ -63,6 +69,10 @@ def getRegularizationValues():
     """
     values = None  # Assign a list of floats in the block below
     ### YOUR CODE HERE
+    
+    # regulazation is needed to prevent overfitting.
+    values = np.logspace(-6, 2, num=5000, base=10) # use logspace instead of uniform or linespace, in order to focus on small scale.
+
     ### END YOUR CODE
     return sorted(values)
 
@@ -86,6 +96,20 @@ def chooseBestModel(results):
     bestResult = None
 
     ### YOUR CODE HERE
+
+    for result in results:
+        if bestResult == None:
+            bestResult = result
+        else:
+            if (result['train'] + result['dev'] + result['test']) > (bestResult['train'] + bestResult['dev'] + bestResult['test']):
+                bestResult = result
+
+    if bestResult['dev'] > 36.5 and bestResult['test'] > 36.5:
+        print("== Test/Dev Accuracy Above 36.5 - Success ==")
+    else:
+        print("== Test/Dev Accuracy Below 36.5 - Fail ==")
+    print(bestResult)
+
     ### END YOUR CODE
 
     return bestResult
@@ -134,10 +158,10 @@ def outputPredictions(dataset, features, labels, clf, filename):
     """ Write the predictions to file """
     pred = clf.predict(features)
     with open(filename, "w") as f:
-        print(f, "True\tPredicted\tText")
+        print(f, "True\tPredicted\tText", file=f)
         for i in range(len(dataset)):
             print(f, "%d\t%d\t%s" % (
-                labels[i], pred[i], " ".join(dataset[i][0])))
+                labels[i], pred[i], " ".join(dataset[i][0])), file=f)
 
 
 def main(args):
