@@ -1,7 +1,12 @@
 import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1' 
 import tensorflow as tf
 from utils.general_utils import test_all_close
 
+tf.compat.v1.disable_eager_execution()
+physical_devices = tf.config.list_physical_devices('GPU')
+print("Num GPUs:", len(physical_devices))
 
 def softmax(x):
     """
@@ -24,7 +29,8 @@ def softmax(x):
     """
 
     ### YOUR CODE HERE
-    
+    out = tf.exp(x) / tf.reduce_sum(tf.exp(x), axis=1, keepdims=True)
+    assert(x.shape == out.shape)
     ### END YOUR CODE
 
     return out
@@ -55,6 +61,8 @@ def cross_entropy_loss(y, yhat):
     """
 
     ### YOUR CODE HERE
+    out = -tf.reduce_sum(tf.cast(y, dtype='float32') * tf.math.log(yhat))
+    assert(len(out.shape) == 0)
     ### END YOUR CODE
 
     return out
@@ -67,13 +75,13 @@ def test_softmax_basic():
     """
 
     test1 = softmax(tf.constant(np.array([[1001, 1002], [3, 4]]), dtype=tf.float32))
-    with tf.Session() as sess:
+    with tf.compat.v1.Session() as sess:
             test1 = sess.run(test1)
     test_all_close("Softmax test 1", test1, np.array([[0.26894142,  0.73105858],
                                                       [0.26894142,  0.73105858]]))
 
     test2 = softmax(tf.constant(np.array([[-1001, -1002]]), dtype=tf.float32))
-    with tf.Session() as sess:
+    with tf.compat.v1.Session() as sess:
             test2 = sess.run(test2)
     test_all_close("Softmax test 2", test2, np.array([[0.73105858, 0.26894142]]))
 
@@ -84,14 +92,14 @@ def test_cross_entropy_loss_basic():
     """
     Some simple tests of cross_entropy_loss to get you started.
     Warning: these are not exhaustive.
-    """
+    """    
     y = np.array([[0, 1], [1, 0], [1, 0]])
     yhat = np.array([[.5, .5], [.5, .5], [.5, .5]])
 
     test1 = cross_entropy_loss(
             tf.constant(y, dtype=tf.int32),
             tf.constant(yhat, dtype=tf.float32))
-    with tf.Session() as sess:
+    with tf.compat.v1.Session() as sess:
         test1 = sess.run(test1)
     expected = -3 * np.log(.5)
     test_all_close("Cross-entropy test 1", test1, expected)
