@@ -1,6 +1,8 @@
 import time
 
 import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1' 
 import tensorflow as tf
 
 from q1_softmax import softmax
@@ -8,6 +10,9 @@ from q1_softmax import cross_entropy_loss
 from model import Model
 from utils.general_utils import get_minibatches
 
+tf.compat.v1.disable_eager_execution()
+physical_devices = tf.config.list_physical_devices('GPU')
+print("Num GPUs:", len(physical_devices))
 
 class Config(object):
     """Holds model hyperparams and data information.
