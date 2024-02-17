@@ -1,6 +1,11 @@
 import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1' 
 import tensorflow as tf
 
+tf.compat.v1.disable_eager_execution()
+physical_devices = tf.config.list_physical_devices('GPU')
+print("Num GPUs:", len(physical_devices))
 
 def xavier_weight_init():
     """Returns function that creates random tensor.

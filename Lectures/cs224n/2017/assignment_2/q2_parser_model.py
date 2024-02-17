@@ -1,5 +1,7 @@
 import os
 import time
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1' 
 import tensorflow as tf
 import pickle
 
@@ -8,6 +10,9 @@ from q2_initialization import xavier_weight_init
 from utils.general_utils import Progbar
 from utils.parser_utils import minibatches, load_and_preprocess_data
 
+tf.compat.v1.disable_eager_execution()
+physical_devices = tf.config.list_physical_devices('GPU')
+print("Num GPUs:", len(physical_devices))
 
 class Config(object):
     """Holds model hyperparams and data information.
@@ -230,7 +235,7 @@ def main(debug=True):
         # init = tf.initialize_all_variables()
         saver = None if debug else tf.train.Saver()
 
-        with tf.Session() as session:
+        with tf.compat.v1.Session() as session:
             parser.session = session
             session.run(init)
 
