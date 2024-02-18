@@ -50,6 +50,9 @@ class SoftmaxModel(Model):
             self.labels_placeholder
         """
         ### YOUR CODE HERE
+        conf = self.config
+        self.input_placeholder = tf.compat.v1.placeholder(shape=[conf.batch_size, conf.n_features], dtype=tf.dtypes.float32)
+        self.labels_placeholder = tf.compat.v1.placeholder(shape=[conf.batch_size, conf.n_classes], dtype=tf.dtypes.float32)
         ### END YOUR CODE
 
     def create_feed_dict(self, inputs_batch, labels_batch=None):
@@ -73,6 +76,12 @@ class SoftmaxModel(Model):
             feed_dict: The feed dictionary mapping from placeholders to values.
         """
         ### YOUR CODE HERE
+        # placehoder and feed_dict to allow callers to use input to override tensors(vectors).
+        # i.e. feed data into graph.
+        feed_dict = {
+            self.input_placeholder : inputs_batch,
+            self.labels_placeholder : labels_batch,
+        }
         ### END YOUR CODE
         return feed_dict
 
@@ -93,6 +102,11 @@ class SoftmaxModel(Model):
             pred: A tensor of shape (batch_size, n_classes)
         """
         ### YOUR CODE HERE
+        conf = self.config
+        W = tf.Variable(tf.zeros([conf.n_features,  conf.n_classes], dtype=tf.dtypes.float32))
+        b = tf.Variable(tf.zeros([conf.batch_size, 1],dtype=tf.dtypes.float32))
+        pred = softmax(tf.matmul(self.input_placeholder, W) + b)
+        assert(pred.shape == (conf.batch_size, conf.n_classes))
         ### END YOUR CODE
         return pred
 
@@ -107,6 +121,7 @@ class SoftmaxModel(Model):
             loss: A 0-d tensor (scalar)
         """
         ### YOUR CODE HERE
+        loss = cross_entropy_loss(y=self.labels_placeholder, yhat=pred)
         ### END YOUR CODE
         return loss
 
@@ -130,6 +145,11 @@ class SoftmaxModel(Model):
             train_op: The Op for training.
         """
         ### YOUR CODE HERE
+        # tensorflow has attached gradient operations which compute the gradient of argument('cross_entropy')
+        # wrt all the variables('W' and 'b').
+        # So we only need to define the forward pass of model. backward pass is done automatically. 
+        train_op = tf.compat.v1.train.GradientDescentOptimizer(
+            learning_rate=self.config.lr).minimize(loss)
         ### END YOUR CODE
         return train_op
 
@@ -193,13 +213,13 @@ def test_softmax_model():
     with tf.Graph().as_default():
         # Build the model and add the variable initializer Op
         model = SoftmaxModel(config)
-        init = tf.global_variables_initializer()
+        init = tf.compat.v1.global_variables_initializer()
         # If you are using an old version of TensorFlow, you may have to use
         # this initializer instead.
         # init = tf.initialize_all_variables()
 
         # Create a session for running Ops in the Graph
-        with tf.Session() as sess:
+        with tf.compat.v1.Session() as sess:
             # Run the Op to initialize the variables.
             sess.run(init)
             # Fit the model
