@@ -1,5 +1,4 @@
 import time
-import sys
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1' 
 import tensorflow as tf
@@ -59,9 +58,9 @@ class ParserModel(Model):
         (Don't change the variable names)
         """
         ### YOUR CODE HERE
-        self.input_placeholder = tf.compat.v1.placeholder(dtype=tf.int32, shape=(None, self.config.n_features))
-        self.labels_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=(None, self.config.n_classes))
-        self.dropout_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=(1,1))
+        self.input_placeholder = tf.compat.v1.placeholder(dtype=tf.int32, shape=(None, self.config.n_features), name='ph-input')
+        self.labels_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=(None, self.config.n_classes), name="ph-label")
+        self.dropout_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=(), name="ph-dropout")
         ### END YOUR CODE
 
     def create_feed_dict(self, inputs_batch, labels_batch=None, dropout=1, beta_regul=10e-7):
@@ -88,10 +87,12 @@ class ParserModel(Model):
         """
         ### YOUR CODE HERE
         feed_dict = {
-            self.input_placeholder : inputs_batch,
-            self.labels_placeholder : labels_batch,
-            self.dropout_placeholder : dropout
+            self.input_placeholder: inputs_batch,
+            self.dropout_placeholder: dropout
         }
+
+        if labels_batch is not None:
+            feed_dict[self.labels_placeholder] = labels_batch
         ### END YOUR CODE
         return feed_dict
 
@@ -153,8 +154,8 @@ class ParserModel(Model):
         b2 = tf.zeros(shape=(self.config.n_classes)) # (3,)
 
         h = tf.nn.relu(tf.matmul(x,W) + b1) # (None,200)
-        h_drop = tf.nn.dropout(h, self.config.dropout) # (None,200)
-        pred = tf.matmul(h_drop, U) + b2 # (None,3)
+        h_drop = tf.nn.dropout(h, (1-self.dropout_placeholder)) # (None,200)
+        pred = tf.matmul(h_drop, U, name='pred') + b2 # (None,3)
         ### END YOUR CODE
         return pred
 
@@ -172,7 +173,7 @@ class ParserModel(Model):
             loss: A 0-d tensor (scalar)
         """
         ### YOUR CODE HERE
-        ### END YOUR CODE
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.labels_placeholder, logits=pred), name="loss")        ### END YOUR CODE
         return loss
 
     def add_training_op(self, loss):
@@ -195,6 +196,7 @@ class ParserModel(Model):
             train_op: The Op for training.
         """
         ### YOUR CODE HERE
+        train_op = tf.compat.v1.train.AdamOptimizer(learning_rate=self.config.lr).minimize(loss=loss)
         ### END YOUR CODE
         return train_op
 
@@ -249,11 +251,11 @@ def main(debug=True):
         parser.model = model
         print("took {:.2f} seconds\n".format(time.time() - start))
 
-        init = tf.global_variables_initializer()
+        init = tf.compat.v1.global_variables_initializer()
         # If you are using an old version of TensorFlow, you may have to use
         # this initializer instead.
         # init = tf.initialize_all_variables()
-        saver = None if debug else tf.train.Saver()
+        saver = None if debug else tf.compat.v1.train.Saver()
 
         with tf.compat.v1.Session() as session:
             parser.session = session
@@ -274,7 +276,7 @@ def main(debug=True):
                 UAS, dependencies = parser.parse(test_set)
                 print("- test UAS: {:.2f}".format(UAS * 100.0))
                 print("Writing predictions")
-                with open('q2_test.predicted.pkl', 'w') as f:
+                with open('q2_test.predicted.pkl', 'wb') as f:
                     pickle.dump(dependencies, f, -1)
                 print("Done!")
 
