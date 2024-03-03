@@ -1,5 +1,5 @@
-import os
 import time
+import sys
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1' 
 import tensorflow as tf
@@ -59,6 +59,9 @@ class ParserModel(Model):
         (Don't change the variable names)
         """
         ### YOUR CODE HERE
+        self.input_placeholder = tf.compat.v1.placeholder(dtype=tf.int32, shape=(None, self.config.n_features))
+        self.labels_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=(None, self.config.n_classes))
+        self.dropout_placeholder = tf.compat.v1.placeholder(dtype=tf.float32, shape=(1,1))
         ### END YOUR CODE
 
     def create_feed_dict(self, inputs_batch, labels_batch=None, dropout=1, beta_regul=10e-7):
@@ -84,6 +87,11 @@ class ParserModel(Model):
             feed_dict: The feed dictionary mapping from placeholders to values.
         """
         ### YOUR CODE HERE
+        feed_dict = {
+            self.input_placeholder : inputs_batch,
+            self.labels_placeholder : labels_batch,
+            self.dropout_placeholder : dropout
+        }
         ### END YOUR CODE
         return feed_dict
 
@@ -105,6 +113,9 @@ class ParserModel(Model):
             embeddings: tf.Tensor of shape (None, n_features*embed_size)
         """
         ### YOUR CODE HERE
+        embeddings = tf.compat.v1.Variable(initial_value=self.pretrained_embeddings) # (39638,50)
+        embeddings = tf.nn.embedding_lookup(params=embeddings, ids=self.input_placeholder) # (None,36,50)
+        embeddings = tf.reshape(tensor=embeddings, shape=[-1, (embeddings.shape[1] * embeddings.shape[2])]) # (None,1800)
         ### END YOUR CODE
         return embeddings
 
@@ -135,6 +146,15 @@ class ParserModel(Model):
 
         x = self.add_embedding()
         ### YOUR CODE HERE
+        initializer = xavier_weight_init()
+        W = tf.compat.v1.Variable(initial_value=initializer(shape=(x.shape[1], self.config.hidden_size))) # (1800,200)
+        U = tf.compat.v1.Variable(initial_value=initializer(shape=(self.config.hidden_size, self.config.n_classes))) # (200,3)
+        b1 = tf.zeros(shape=(self.config.hidden_size, )) # (200,)
+        b2 = tf.zeros(shape=(self.config.n_classes)) # (3,)
+
+        h = tf.nn.relu(tf.matmul(x,W) + b1) # (None,200)
+        h_drop = tf.nn.dropout(h, self.config.dropout) # (None,200)
+        pred = tf.matmul(h_drop, U) + b2 # (None,3)
         ### END YOUR CODE
         return pred
 
@@ -255,7 +275,7 @@ def main(debug=True):
                 print("- test UAS: {:.2f}".format(UAS * 100.0))
                 print("Writing predictions")
                 with open('q2_test.predicted.pkl', 'w') as f:
-                    cPickle.dump(dependencies, f, -1)
+                    pickle.dump(dependencies, f, -1)
                 print("Done!")
 
 if __name__ == '__main__':
