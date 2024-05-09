@@ -15,6 +15,13 @@ def main(train_path, eval_path, pred_path):
     x_train, y_train = util.load_dataset(train_path, add_intercept=True)
 
     # *** START CODE HERE ***
+    clf = LogisticRegression()
+    clf.fit(x_train, y_train)
+
+    x_eval, y_eval = util.load_dataset(eval_path, add_intercept=True)
+
+    clf.predict(x_eval)
+
     # *** END CODE HERE ***
 
 
@@ -35,6 +42,11 @@ class LogisticRegression(LinearModel):
             y: Training example labels. Shape (m,).
         """
         # *** START CODE HERE ***
+        theta = np.zeros(x.shape)  # 800, 3
+        g_theta_x = 1 / (1 + np.exp(np.dot(theta.T, x)))
+        hessian = np.average(g_theta_x * (1-g_theta_x) * np.dot(x.T, x))  # scalar
+
+
         # *** END CODE HERE ***
 
     def predict(self, x):
