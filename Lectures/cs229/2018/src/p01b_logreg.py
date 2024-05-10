@@ -42,9 +42,9 @@ class LogisticRegression(LinearModel):
             y: Training example labels. Shape (m,).
         """
         # *** START CODE HERE ***
-        theta = np.zeros(x.shape)  # 800, 3
-        g_theta_x = 1 / (1 + np.exp(np.dot(theta.T, x)))
-        hessian = np.average(g_theta_x * (1-g_theta_x) * np.dot(x.T, x))  # scalar
+        self.theta = np.zeros(x.shape)  # 800, 3
+        g_theta_x = 1 / (1 + np.exp(-x.dot(self.theta.T)))
+        hessian = np.average(g_theta_x * (1-g_theta_x) * x.dot(x.T))  # scalar
 
 
         # *** END CODE HERE ***
@@ -59,4 +59,5 @@ class LogisticRegression(LinearModel):
             Outputs of shape (m,).
         """
         # *** START CODE HERE ***
+        return 1 / (np.exp(-x.dot(self.theta.T))) # logistic regression
         # *** END CODE HERE ***
