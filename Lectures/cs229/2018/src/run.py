@@ -8,7 +8,7 @@ from p05b_lwr import main as p05b
 from p05c_tau import main as p05c
 
 parser = argparse.ArgumentParser()
-parser.add_argument('p_num', nargs='?', type=int, default=0,
+parser.add_argument('--p_num', nargs='?', type=int, default=0,
                     help='Problem number to run, 0 for all problems.')
 args = parser.parse_args()
 
