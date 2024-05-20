@@ -16,6 +16,11 @@ def main(train_path, eval_path, pred_path):
     x_train, y_train = util.load_dataset(train_path, add_intercept=False)
 
     # *** START CODE HERE ***
+    x_eval, y_eval = util.load_dataset(eval_path, add_intercept=False)
+
+    clf = GDA()
+    clf.fit(x_train, y_train)
+    clf.predict(x_eval)
     # *** END CODE HERE ***
 
 
@@ -39,6 +44,7 @@ class GDA(LinearModel):
             theta: GDA model parameters.
         """
         # *** START CODE HERE ***
+
         # *** END CODE HERE ***
 
     def predict(self, x):
