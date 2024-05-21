@@ -44,6 +44,45 @@ class GDA(LinearModel):
             theta: GDA model parameters.
         """
         # *** START CODE HERE ***
+        # phi
+        sum_y_1 = 0
+        for y_i in y:
+            if y_i == 1:
+                sum_y_1 += 1
+        phi = sum_y_1 / len(y)
+
+        # m_0
+        sum_y_0 = 0
+        for y_i in y:
+            if y_i == 0:
+                sum_y_0 += 1
+
+        sum_x_y_0 = 0
+        for x_i, y_i in zip(x, y):
+            if y_i == 0:
+                sum_x_y_0 += x_i
+
+        m_0 = sum_x_y_0 / sum_y_0
+
+        # m_1
+        sum_x_y_1 = 0
+        for x_i, y_i in zip(x, y):
+            if y_i == 1:
+                sum_x_y_1 += x_i
+
+        m_1 = sum_x_y_1 / sum_y_1
+
+        # sig
+        sig_tot = 0
+        for x_i, y_i in zip(x, y):
+            if y_i == 0:
+                m = m_0
+            else:
+                m = m_1
+
+            sig_tot += (x_i - m).dot((x_i - m).T)
+
+        sig = sig_tot / len(y)
 
         # *** END CODE HERE ***
 
