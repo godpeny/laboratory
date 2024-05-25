@@ -20,17 +20,19 @@ def main(train_path, eval_path, pred_path):
 
     x_eval, y_eval = util.load_dataset(eval_path, add_intercept=True)
 
-    y_hat = clf.predict(x_eval)
+    y_pred = clf.predict(x_eval)
 
     cnt = 0
-    for y_hat_element, y_element in zip(y_hat, y_eval):
+    for y_hat_element, y_element in zip(y_pred, y_eval):
         pred = 0
         if y_hat_element > 0.5:
             pred = 1
         if pred != y_element:
             cnt += 1
 
-    print("error rate : ", cnt/len(y_hat))
+    print("error rate : ", cnt/len(y_pred))
+
+    util.plot(x_eval, y_eval, clf.theta, 'output/p01b_{}.png'.format(pred_path[-5]))
 
     # *** END CODE HERE ***
 

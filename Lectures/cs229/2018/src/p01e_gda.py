@@ -22,6 +22,13 @@ def main(train_path, eval_path, pred_path):
     clf.fit(x_train, y_train)
     y_pred = clf.predict(x_eval)
 
+    new_theta = np.zeros(3)
+    new_theta[0] = clf.theta[0]
+    new_theta[1:] = clf.theta[1]
+
+    util.plot(x_eval, y_eval, new_theta, 'output/p01e_{}.png'.format(pred_path[-5]))
+
+
     for y_pred_i in y_pred:
         if y_pred_i > 0.5:
             print("True")
@@ -108,5 +115,5 @@ class GDA(LinearModel):
             Outputs of shape (m,).
         """
         # *** START CODE HERE ***
-        return 1 / (1 + np.exp(-((x @ self.theta[1]) + self.theta[0])))
+        return 1 / (1 + np.exp(-((x @ self.theta[1]) + self.theta[0]))) # since no intercept.
         # *** END CODE HERE
