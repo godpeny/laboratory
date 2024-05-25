@@ -20,7 +20,14 @@ def main(train_path, eval_path, pred_path):
 
     clf = GDA()
     clf.fit(x_train, y_train)
-    clf.predict(x_eval)
+    y_pred = clf.predict(x_eval)
+
+    for y_pred_i in y_pred:
+        if y_pred_i > 0.5:
+            print("True")
+        else:
+            print("False")
+
     # *** END CODE HERE ***
 
 
@@ -74,15 +81,20 @@ class GDA(LinearModel):
 
         # sig
         sig_tot = 0
-        for x_i, y_i in zip(x, y):
+        for x_i, y_i in zip(np.array(x), np.array(y)):
             if y_i == 0:
                 m = m_0
             else:
                 m = m_1
 
-            sig_tot += (x_i - m).dot((x_i - m).T)
+            x_i = np.array([x_i])
+            sig_tot += (x_i - m).T.dot((x_i - m)) # outer product
 
         sig = sig_tot / len(y)
+        sig_inverse = np.linalg.inv(sig)
+
+        self.theta = [0.5 * ((m_0.T @ sig_inverse @ m_0) - (m_1.T @ sig_inverse @ m_1)) - np.log((1-phi)/phi),
+                      -sig_inverse @ (m_0 - m_1)] # (theta_0, theta)
 
         # *** END CODE HERE ***
 
@@ -96,4 +108,5 @@ class GDA(LinearModel):
             Outputs of shape (m,).
         """
         # *** START CODE HERE ***
+        return 1 / (1 + np.exp(-((x @ self.theta[1]) + self.theta[0])))
         # *** END CODE HERE
