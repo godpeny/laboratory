@@ -57,14 +57,17 @@ class LogisticRegression(LinearModel):
         self.theta = np.zeros(x.shape[1])  # (1,3)
         self.eps = 0.00001
 
+        m = x.shape[0]
+
         while True:
-            g_theta_x = 1 / (1 + np.exp(np.dot(-x, self.theta.T)))  # (800, 1) = (800, 3) @ (3, 1)
+            g_theta_x = 1 / (1 + np.exp(-np.dot(x, self.theta)))  # (800, 1) = (800, 3) @ (3, 1)
 
-            hessian = x @ x.T @ g_theta_x * (1 - g_theta_x)  # (800, 1) = (800, 3) @ (3, 800) @ (800, 1) * (800, 1)
-            hessian = np.average(hessian)  # scalar
+            # hessiain should be matrix?
+            hessian = (g_theta_x.T @ x @ x.T @ (1 - g_theta_x)) / m  # (1, 1) = (1, 800) @ (800, 3) @ (3, 800) @ (800, 1)
 
-            gradient = -x.T @ (y - g_theta_x)  # (3, 1) = (3, 800) @ (800, 1)
+            gradient = (-x.T @ (y - g_theta_x)) / m  # (3, 1) = (3, 800) @ (800, 1)
 
+            # use generalization of Newton’s method for multidimensional setting. (the previous is for scalar)
             theta_updated = self.theta - (gradient/hessian)
 
             gap = np.average(np.abs(theta_updated - self.theta))
