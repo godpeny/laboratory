@@ -30,9 +30,8 @@ def main(train_path, eval_path, pred_path):
         if pred != y_element:
             cnt += 1
 
-    print("error rate : ", cnt/len(y_pred))
-
-    util.plot(x_eval, y_eval, clf.theta, 'output/p01b_{}.png'.format(pred_path[-5]))
+    # reshape clf.theta (1, 3) => (3, ) to fit in util.plot.
+    util.plot(x_eval, y_eval, clf.theta.squeeze(axis=0), 'output/p01b_{}.png'.format(pred_path[-5]))
 
     # *** END CODE HERE ***
 
@@ -54,21 +53,26 @@ class LogisticRegression(LinearModel):
             y: Training example labels. Shape (m,).
         """
         # *** START CODE HERE ***
-        self.theta = np.zeros(x.shape[1])  # (1,3)
+        self.theta = np.zeros((1, x.shape[1]))  # (1, 3)
         self.eps = 0.00001
 
+        y = y.reshape(-1, 1)
         m = x.shape[0]
-
         while True:
-            g_theta_x = 1 / (1 + np.exp(-np.dot(x, self.theta)))  # (800, 1) = (800, 3) @ (3, 1)
+            # g_theta
+            g_theta_x = 1 / (1 + np.exp(-np.dot(x, self.theta.T)))  # (800, 1) = (800, 3) @ (3, 1)
 
-            # hessiain should be matrix?
-            hessian = (g_theta_x.T @ x @ x.T @ (1 - g_theta_x)) / m  # (1, 1) = (1, 800) @ (800, 3) @ (3, 800) @ (800, 1)
+            # gradient
+            gradient = -(x.T @ (y - g_theta_x)) / m  # (3, 1) = (3, 800) @ (800, 1)
 
-            gradient = (-x.T @ (y - g_theta_x)) / m  # (3, 1) = (3, 800) @ (800, 1)
+            # hessian
+            hessian = (x.T @ g_theta_x * (1 - g_theta_x.T) @ x) / m  # (3, 3) = (3, 800) @ (800, 1) @ (1, 800) @ (800, 3)
+            hessian_new = np.dot(x.T, g_theta_x * (1 - g_theta_x) * x) / m
+
+            hessian = hessian_new
 
             # use generalization of Newton’s method for multidimensional setting. (the previous is for scalar)
-            theta_updated = self.theta - (gradient/hessian)
+            theta_updated = self.theta - (gradient.T @ np.linalg.inv(hessian))
 
             gap = np.average(np.abs(theta_updated - self.theta))
             print("theta : ", theta_updated, " gap : ", gap)
