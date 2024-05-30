@@ -63,13 +63,12 @@ class LogisticRegression(LinearModel):
             g_theta_x = 1 / (1 + np.exp(-np.dot(x, self.theta.T)))  # (800, 1) = (800, 3) @ (3, 1)
 
             # gradient
-            gradient = -(x.T @ (y - g_theta_x)) / m  # (3, 1) = (3, 800) @ (800, 1)
+            # (3, 1) = (3, 800) @ (800, 1)
+            gradient = -(x.T @ (y - g_theta_x)) / m
 
             # hessian
-            hessian = (x.T @ g_theta_x * (1 - g_theta_x.T) @ x) / m  # (3, 3) = (3, 800) @ (800, 1) @ (1, 800) @ (800, 3)
-            hessian_new = np.dot(x.T, g_theta_x * (1 - g_theta_x) * x) / m
-
-            hessian = hessian_new
+            # (3, 3) = (3, 800) @ (800, 1) * (800, 1) * (800, 3)
+            hessian = x.T @ (g_theta_x * (1 - g_theta_x) * x) / m
 
             # use generalization of Newton’s method for multidimensional setting. (the previous is for scalar)
             theta_updated = self.theta - (gradient.T @ np.linalg.inv(hessian))
