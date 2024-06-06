@@ -19,6 +19,9 @@ def main(lr, train_path, eval_path, pred_path):
     # *** START CODE HERE ***
     # Fit a Poisson Regression model
     # Run on the validation set, and use np.savetxt to save outputs to pred_path
+    poisson = PoissonRegression()
+    poisson.fit(x_train, y_train)
+
     # *** END CODE HERE ***
 
 
@@ -39,6 +42,23 @@ class PoissonRegression(LinearModel):
             y: Training example labels. Shape (m,).
         """
         # *** START CODE HERE ***
+        m,n = x.shape  # (2500, 4)
+        y = y.reshape(-1, 1)  # (2500, 1)
+        self.theta = np.zeros([1, n])  # (1, 4)
+        self.eps = 0.00001
+        lr = 0.01
+
+        while True:
+            e = np.exp(x @ self.theta.T)  # (2500, 1) = (2500, 4) @ (4, 1)
+            derivative = (y - e).T @ x  # (1, 4)
+
+            theta_new = self.theta + (lr * derivative)
+
+            gap = np.abs(np.mean(theta_new - self.theta))
+            print("theta : ", theta_new, " gap : ", gap)
+            if gap < self.eps:
+                break
+            self.theta = theta_new
         # *** END CODE HERE ***
 
     def predict(self, x):
