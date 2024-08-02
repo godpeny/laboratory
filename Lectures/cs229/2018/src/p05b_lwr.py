@@ -18,6 +18,9 @@ def main(tau, train_path, eval_path):
 
     # *** START CODE HERE ***
     # Fit a LWR model
+    lwr = LocallyWeightedLinearRegression(tau=0.5)
+    lwr.fit(x_train, y_train)
+
     # Get MSE value on the validation set
     # Plot validation predictions on top of training set
     # No need to save predictions
@@ -45,6 +48,10 @@ class LocallyWeightedLinearRegression(LinearModel):
 
         """
         # *** START CODE HERE ***
+        mean_x = np.average(x)
+        mse = x-mean_x
+        self.theta = np.exp(-np.sqrt(np.square(mse))/(2*self.tau))
+        print(self.theta.shape)
         # *** END CODE HERE ***
 
     def predict(self, x):
