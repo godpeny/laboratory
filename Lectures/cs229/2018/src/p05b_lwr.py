@@ -86,14 +86,16 @@ class LocallyWeightedLinearRegression(LinearModel):
         self.x = self.x[:m,]
         self.y = self.y[:m,]
 
-        euclid_norm_2d = np.sum(np.square(self.x - np.reshape(x, (m,-1,n))), axis=2)  # np.linalg.norm(self.x - np.reshape(x, (m,-1,n)), axis=2, ord=2)**2
-        w = np.exp(-euclid_norm_2d/(2*self.tau**2)) # (m,m)
-        # W = np.diag(np.diag(w)) # (m, m) diagnoal matrix
-        W_2 = np.apply_along_axis(np.diag, axis=1, arr=w) # (m,m,m) diagnoal matrix
+        sub = self.x - np.reshape(x, (m,-1,n))  # (m,m,n)
+        euclid_norm_2d = np.sum(np.square(sub), axis=2)  # np.linalg.norm(self.x - np.reshape(x, (m,-1,n)), axis=2, ord=2)**2 => (m,m)
+        w = np.exp(-euclid_norm_2d/(2*self.tau**2)) # (m,m) => [x[0]-self.x, x[1]-self.x, ... x[m]-self.x]
+        # W = np.diag(np.diag(w)) # (m, m) diagonal matrix
+        W_2 = np.apply_along_axis(np.diag, axis=1, arr=w)  # (m,m,m) diagonal matrix => [0][][] = diag(x[0]-self.x), [1][][] = diag(x[1]-self.x), ... [m][][] = diag(x[m]-self.x)
 
         self.theta = np.linalg.inv((self.x.T @ W_2 @ self.x)) @ self.x.T @ W_2 @ self.y
-        # (2,200) @ (200,200,200)) @ (200,2) = (200,2,200) @ (200,2) = (200,2,2)
-        # (200,2,2) @ (2,200) @ (200,200,200) @ (200,) = (200,2,200) @ (200,200,200) @ (200,) = (200,2,200) @ (200,)
+        # (2,200) @ (200,200,200) @ (200,2) = (200,2,200) @ (200,2) = (200,2,2)
+        # (200,2,2) @ (2,200) @ (200,200,200) @ (200,) =
+        # (200,2,200) @ (200,200,200) @ (200,) = (200,2,200) @ (200,)
         # (200,2)
 
         y_pred_1 = np.einsum('ij,ij->i', x, self.theta)
@@ -111,7 +113,9 @@ class LocallyWeightedLinearRegression(LinearModel):
             W = np.diag(w)  # (200,200)
             theta = np.linalg.inv(self.x.T.dot(W).dot(self.x)).dot(self.x.T).dot(W).dot(self.y)  # (2,)
             # (2,200) @ (200,200) @ (200,2) = (2,200) @ (200,2) = (2,2)
-            # (2,2) @ (2,200) @ (200,200) @ (200,) = (2,200) @ (200,200) @ (200,) = (2,200) @ (200,) = (2,)
+            # (2,2) @ (2,200) @ (200,200) @ (200,) =
+            # (2,200) @ (200,200) @ (200,) = (2,200) @ (200,) =
+            # (2,)
             y_pred_3[i] = theta.T.dot(x[i])
             W_3[i] = W
             theta_2[i] = theta
