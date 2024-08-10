@@ -24,9 +24,8 @@ def main(tau, train_path, eval_path):
     # Get MSE value on the validation set
     x_eval, y_eval = util.load_dataset(eval_path, add_intercept=True)
     y_pred = lwr.predict(x_eval)
-    mse = np.average(np.square((y_eval - y_pred)))
-    # print(y_pred.shape)
-    # print(mse)
+    mse = np.mean((y_eval - y_pred)**2)
+    print(mse)
 
     # Plot validation predictions on top of training set
     plt.figure()
@@ -35,7 +34,9 @@ def main(tau, train_path, eval_path):
     plt.xlabel('x')
     plt.ylabel('y')
     # No need to save predictions
+
     # Plot data
+    plt.show()
     # *** END CODE HERE ***
 
 
@@ -88,24 +89,24 @@ class LocallyWeightedLinearRegression(LinearModel):
 
         sub = self.x - np.reshape(x, (m,-1,n))  # (m,m,n)
         euclid_norm_2d = np.sum(np.square(sub), axis=2)  # np.linalg.norm(self.x - np.reshape(x, (m,-1,n)), axis=2, ord=2)**2 => (m,m)
-        w = np.exp(-euclid_norm_2d/(2*self.tau**2)) # (m,m) => [x[0]-self.x, x[1]-self.x, ... x[m]-self.x]
-        # W = np.diag(np.diag(w)) # (m, m) diagonal matrix
-        W_2 = np.apply_along_axis(np.diag, axis=1, arr=w)  # (m,m,m) diagonal matrix => [0][][] = diag(x[0]-self.x), [1][][] = diag(x[1]-self.x), ... [m][][] = diag(x[m]-self.x)
-
-        self.theta = np.linalg.inv((self.x.T @ W_2 @ self.x)) @ self.x.T @ W_2 @ self.y
+        w = np.exp(-euclid_norm_2d/(2*self.tau**2))  # (m,m) => [x[0]-self.x, x[1]-self.x, ... x[m]-self.x]
+        W = np.apply_along_axis(np.diag, axis=1, arr=w)  # (m,m,m) diagonal matrix => [0][][] = diag(x[0]-self.x), [1][][] = diag(x[1]-self.x), ... [m][][] = diag(x[m]-self.x)
+        self.theta = np.linalg.inv((self.x.T @ W @ self.x)) @ self.x.T @ W @ self.y
         # (2,200) @ (200,200,200) @ (200,2) = (200,2,200) @ (200,2) = (200,2,2)
         # (200,2,2) @ (2,200) @ (200,200,200) @ (200,) =
-        # (200,2,200) @ (200,200,200) @ (200,) = (200,2,200) @ (200,)
+        # (200,2,200) @ (200,200,200) @ (200,) = (200,2,200) @ (200,) =
         # (200,2)
 
-        y_pred_1 = np.einsum('ij,ij->i', x, self.theta)
-        y_pred_2 = x @ self.theta.T
+        y_pred = np.einsum('ij,ij->i', x, self.theta)
+        # (200,2) (200,2) -> [[0][a_0, b_0], [1][a_1, b_1], ... [m][a_m, b_m]], [[0][c_0, d_0], [1][c_1, d_1], ... [m][c_m, d_m]]
+        # [[0][(a_0 * c_0) + (b_0 * d_0)], [1][(a_1 * c_1) + (b_1 * d_1)], ... [m][(a_m * c_m) + (b_m * d_m)]]
+        # (200,)
 
-        print(y_pred_1.shape)
-        print(y_pred_2.shape)
-
-        y_pred_3 = np.zeros(m)
-        W_3 = np.zeros([m,m,m])
+        """
+        # another approach (basically same as original approach) 
+        
+        y_pred_2 = np.zeros(m)
+        W_2 = np.zeros([m,m,m])
         theta_2 = np.zeros([m,n])
 
         for i in range(m):
@@ -116,12 +117,10 @@ class LocallyWeightedLinearRegression(LinearModel):
             # (2,2) @ (2,200) @ (200,200) @ (200,) =
             # (2,200) @ (200,200) @ (200,) = (2,200) @ (200,) =
             # (2,)
-            y_pred_3[i] = theta.T.dot(x[i])
-            W_3[i] = W
+
+            y_pred_2[i] = theta.T @ x[i]
+            W_2[i] = W
             theta_2[i] = theta
-
-        print(np.equal(W_2, W_3))
-        print(np.eqaul(self.theta, theta_2))
-
-        return x @ self.theta.T
+        """
+        return y_pred
         # *** END CODE HERE ***
