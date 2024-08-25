@@ -8,10 +8,13 @@ import matplotlib.pyplot as plt
 def calc_grad(X, Y, theta):
     """Compute the gradient of the loss with respect to theta."""
     m, n = X.shape
-
     margins = Y * X.dot(theta)
     probs = 1. / (1 + np.exp(margins))
-    grad = -(1./m) * (X.T.dot(probs * Y))
+    grad = -(1./m) * (X.T.dot(probs * Y)) + (0.000001*theta)
+    # L2 Norm
+    # add derivative of L2 Norm of theta (= theta**2) respect to theta_k to the derivate of cost function
+    # lambda = 0.000001
+    # grad = -(1. / m) * (X.T.dot(probs * Y)) + (0.000001 * theta)
 
     return grad
 
@@ -21,6 +24,10 @@ def logistic_regression(X, Y):
     m, n = X.shape
     theta = np.zeros(n)
     learning_rate = 10
+
+    # zero mean normal distribution noise
+    # np.random.normal(0, 0.1, X.shape)
+    # X += noise
 
     i = 0
     while True:
@@ -74,12 +81,9 @@ def data_plot():
     plt.show()
 
 def main():
-    print('==== Training model on data set A ====')
-    Xa, Ya = util.load_csv('../data/ds1_a.csv', add_intercept=True)
-    logistic_regression(Xa, Ya)
-
-    x_b, y_b = util.load_csv('../data/ds1_b.csv')
-    data_plot(x_b, y_b)
+    # print('==== Training model on data set A ====')
+    # Xa, Ya = util.load_csv('../data/ds1_a.csv', add_intercept=True)
+    # logistic_regression(Xa, Ya)
 
     print('\n==== Training model on data set B ====')
     Xb, Yb = util.load_csv('../data/ds1_b.csv', add_intercept=True)
@@ -87,5 +91,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    data_plot()
+    main()
+    # data_plot()
