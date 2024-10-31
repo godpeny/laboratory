@@ -12,7 +12,7 @@ def calc_grad(X, Y, theta):
     probs = 1. / (1 + np.exp(margins))
     grad = -(1./m) * (X.T.dot(probs * Y)) + (0.000001*theta)
     # L2 Norm
-    # add derivative of L2 Norm of theta (= theta**2) respect to theta_k to the derivate of cost function
+    # add derivative of L2 Norm of theta (= theta**2) respect to theta_k to the derivative of cost function
     # lambda = 0.000001
     # grad = -(1. / m) * (X.T.dot(probs * Y)) + (0.000001 * theta)
 
@@ -26,8 +26,8 @@ def logistic_regression(X, Y):
     learning_rate = 10
 
     # zero mean normal distribution noise
-    # np.random.normal(0, 0.1, X.shape)
-    # X += noise
+    noise = np.random.normal(0, 0.1, X.shape)
+    X += noise
 
     i = 0
     while True:
@@ -88,6 +88,8 @@ def main():
     print('\n==== Training model on data set B ====')
     Xb, Yb = util.load_csv('../data/ds1_b.csv', add_intercept=True)
     logistic_regression(Xb, Yb)
+
+    # data_plot()
 
 
 if __name__ == '__main__':
