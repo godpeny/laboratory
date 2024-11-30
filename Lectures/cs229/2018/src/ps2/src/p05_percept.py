@@ -16,11 +16,15 @@ def initial_state():
     """
 
     # *** START CODE HERE ***
+    # (b, x) where b is vector of beta from 0 to i-1, and x is vector of x from 0 to i-1
+    # b = [b_0, b_1, ... b_(i-1))
+    # x = [x_0, x_1, ... x_(i-1))
+    return [[],[]]
     # *** END CODE HERE ***
 
 
 def predict(state, kernel, x_i):
-    """Peform a prediction on a given instance x_i given the current state
+    """Perform a prediction on a given instance x_i given the current state
     and the kernel.
 
     Args:
@@ -33,6 +37,8 @@ def predict(state, kernel, x_i):
         Returns the prediction (i.e 0 or 1)
     """
     # *** START CODE HERE ***
+    b, x = state
+    return sign(sum(b_j * kernel(x_j, x_i) for b_j, x_j in zip(b,x)))
     # *** END CODE HERE ***
 
 
@@ -47,6 +53,11 @@ def update_state(state, kernel, learning_rate, x_i, y_i):
         y_i: A 0 or 1 indicating the label for a single instance
     """
     # *** START CODE HERE ***
+    b, x = state
+    _b = learning_rate * (y_i - sign(sum(b_j * kernel(x_j, x_i) for b_j, x_j in zip(b,x))))
+    #  No need to reassign state since b and x are references to the lists in the original state object
+    b.append(_b)
+    x.append(x_i)
     # *** END CODE HERE ***
 
 
