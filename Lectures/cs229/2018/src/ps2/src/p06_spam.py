@@ -21,6 +21,7 @@ def get_words(message):
     """
 
     # *** START CODE HERE ***
+    return message.lower().split()
     # *** END CODE HERE ***
 
 
@@ -41,6 +42,25 @@ def create_dictionary(messages):
     """
 
     # *** START CODE HERE ***
+    counter = {}
+    for message in messages:
+        message_ = get_words(message)
+
+        unique_message_ = list(set(message_))
+        for word in unique_message_:
+            if word in counter:
+                counter[word] += 1
+            else:
+                counter[word] = 1
+
+    my_dict = {}
+    idx = 0
+    for k in counter.keys():
+        if counter[k] >= 5:
+            my_dict[k] = idx
+            idx += 1
+
+    return my_dict
     # *** END CODE HERE ***
 
 
@@ -62,6 +82,18 @@ def transform_text(messages, word_dictionary):
         A numpy array marking the words present in each message.
     """
     # *** START CODE HERE ***
+    l_m = len(messages)
+    l_d = len(word_dictionary)
+
+    result = np.zeros((l_m, l_d+1)) # (4457, 1721)
+
+    for i, message in enumerate(messages):
+        message_ = get_words(message)
+        for word in message_:
+            if word in word_dictionary:
+                result[i][word_dictionary[word]] += 1
+
+    return result
     # *** END CODE HERE ***
 
 
@@ -141,7 +173,7 @@ def main():
     train_messages, train_labels = util.load_spam_dataset('../data/ds6_train.tsv')
     val_messages, val_labels = util.load_spam_dataset('../data/ds6_val.tsv')
     test_messages, test_labels = util.load_spam_dataset('../data/ds6_test.tsv')
-    
+
     dictionary = create_dictionary(train_messages)
 
     util.write_json('./output/p06_dictionary', dictionary)
