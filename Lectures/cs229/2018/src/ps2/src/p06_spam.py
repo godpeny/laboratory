@@ -46,8 +46,7 @@ def create_dictionary(messages):
     for message in messages:
         message_ = get_words(message)
 
-        unique_message_ = list(set(message_))
-        for word in unique_message_:
+        for word in message_:
             if word in counter:
                 counter[word] += 1
             else:
@@ -114,6 +113,7 @@ def fit_naive_bayes_model(matrix, labels):
     """
 
     # *** START CODE HERE ***
+
     # *** END CODE HERE ***
 
 
