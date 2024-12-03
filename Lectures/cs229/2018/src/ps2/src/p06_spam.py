@@ -84,7 +84,7 @@ def transform_text(messages, word_dictionary):
     l_m = len(messages)
     l_d = len(word_dictionary)
 
-    result = np.zeros((l_m, l_d+1)) # (4457, 1721)
+    result = np.zeros((l_m, l_d+1)) # (4457, 1758)
 
     for i, message in enumerate(messages):
         message_ = get_words(message)
@@ -113,7 +113,29 @@ def fit_naive_bayes_model(matrix, labels):
     """
 
     # *** START CODE HERE ***
+    m,n = matrix.shape
 
+    pi_1 = np.zeros(n) # 1758
+    pi_0 = np.zeros(n) # 1758
+
+    rows_1 = matrix[labels == 1] # (611, 1758)
+    rows_0 = matrix[labels == 0] # (3846, 1758)
+
+    deno_1 = rows_1.shape[0] * rows_1.shape[1]
+    deno_0 = rows_0.shape[0] * rows_0.shape[1]
+
+    for i, v in enumerate(pi_1):
+        pi_1[i] = rows_1[:,i].sum()
+
+    for i, v in enumerate(pi_0):
+        pi_0[i] = rows_0[:,i].sum()
+
+    pi_1 = pi_1/deno_1
+    lpi_1 = np.log(pi_1)
+    pi_0 = pi_0/deno_0
+    lpi_0 = np.log(pi_0)
+
+    return [lpi_1, lpi_0]
     # *** END CODE HERE ***
 
 
