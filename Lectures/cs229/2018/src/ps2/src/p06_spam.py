@@ -169,7 +169,6 @@ def predict_from_naive_bayes_model(model, matrix):
         l1, l0 = lp_1, lp_0
         for i, c in enumerate(row):
             if c > 0:
-                print(lpi_1[i])
                 l1 += lpi_1[i]
                 l0 += lpi_0[i]
 
@@ -198,6 +197,25 @@ def get_top_five_naive_bayes_words(model, dictionary):
     Returns: The top five most indicative words in sorted order with the most indicative first
     """
     # *** START CODE HERE ***
+    lpi_1, lpi_0, lp_1, lp_0 = model # 1758
+    dtype = [('index', int), ('indicator', float)]
+    result = []
+
+    for idx in range(len(lpi_1)):
+        indicator = lpi_1[idx] - lpi_0[idx]
+        result.append((idx, indicator))
+
+    a = np.array(result, dtype=dtype)  # create a structured array
+    a = np.sort(a, order='indicator')
+
+
+    words = []
+    new_dict = dict([(value, key) for key, value in dictionary.items()])
+
+    for i, v in a[-5:]:
+        words.append(new_dict[i])
+
+    return words
     # *** END CODE HERE ***
 
 
