@@ -92,6 +92,7 @@ def transform_text(messages, word_dictionary):
             if word in word_dictionary:
                 result[i][word_dictionary[word]] += 1
 
+
     return result
     # *** END CODE HERE ***
 
@@ -131,11 +132,17 @@ def fit_naive_bayes_model(matrix, labels):
         pi_0[i] = rows_0[:,i].sum()
 
     pi_1 = pi_1/deno_1
-    lpi_1 = np.log(pi_1)
+    lpi_1 = np.log10(pi_1)
     pi_0 = pi_0/deno_0
-    lpi_0 = np.log(pi_0)
+    lpi_0 =np.log10(pi_0)
 
-    return [lpi_1, lpi_0]
+    # print(lpi_1)
+    # print(lpi_0)
+
+    lp_1 = np.log10(rows_1.shape[0] / m)
+    lp_0 = np.log10(rows_0.shape[0] / m)
+
+    return [lpi_1, lpi_0, lp_1, lp_0]
     # *** END CODE HERE ***
 
 
@@ -149,9 +156,30 @@ def predict_from_naive_bayes_model(model, matrix):
         model: A trained model from fit_naive_bayes_model
         matrix: A numpy array containing word counts
 
-    Returns: A numpy array containg the predictions from the model
+    Returns: A numpy array containing the predictions from the model
     """
     # *** START CODE HERE ***
+    lpi_1, lpi_0, lp_1, lp_0 = model
+    m,n = matrix.shape
+
+    predict = np.zeros(m)
+
+    for index, row in enumerate(matrix):
+        l1, l0 = lp_1, lp_0
+        for i, c in enumerate(row):
+            if c > 0:
+                l1 += np.log10(lpi_1[i])
+                l0 += np.log10(lpi_0[i])
+
+        if l1 > l0:
+            predict[index] = 1
+        else:
+            predict[index] = 0
+
+    # print(predict)
+    # print(predict.shape)
+
+    return predict
     # *** END CODE HERE ***
 
 
@@ -179,7 +207,7 @@ def compute_best_svm_radius(train_matrix, train_labels, val_matrix, val_labels, 
 
     Args:
         train_matrix: The word counts for the training data
-        train_labels: The spma or not spam labels for the training data
+        train_labels: The spam or not spam labels for the training data
         val_matrix: The word counts for the validation data
         val_labels: The spam or not spam labels for the validation data
         radius_to_consider: The radius values to consider
