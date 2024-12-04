@@ -131,9 +131,10 @@ def fit_naive_bayes_model(matrix, labels):
     for i, v in enumerate(pi_0):
         pi_0[i] = rows_0[:,i].sum()
 
-    pi_1 = pi_1/deno_1
+    # applying laplace smoothing: 1,v
+    pi_1 = (pi_1+1)/(deno_1+n)
     lpi_1 = np.log10(pi_1)
-    pi_0 = pi_0/deno_0
+    pi_0 = (pi_0+1)/(deno_0+n)
     lpi_0 =np.log10(pi_0)
 
     # print(lpi_1)
@@ -168,8 +169,9 @@ def predict_from_naive_bayes_model(model, matrix):
         l1, l0 = lp_1, lp_0
         for i, c in enumerate(row):
             if c > 0:
-                l1 += np.log10(lpi_1[i])
-                l0 += np.log10(lpi_0[i])
+                print(lpi_1[i])
+                l1 += lpi_1[i]
+                l0 += lpi_0[i]
 
         if l1 > l0:
             predict[index] = 1
