@@ -141,7 +141,7 @@ def fit_naive_bayes_model(matrix, labels):
     # print(lpi_0)
 
     lp_1 = np.log10(rows_1.shape[0] / m)
-    lp_0 = np.log10(rows_0.shape[0] / m)
+    lp_0 = np.log10(rows_0.shape[0] / m) # 1 - lp_1
 
     return [lpi_1, lpi_0, lp_1, lp_0]
     # *** END CODE HERE ***
