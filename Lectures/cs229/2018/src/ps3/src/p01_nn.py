@@ -7,20 +7,20 @@ def example_weights():
     """
     w = {}
 
-    w['hidden_layer_0_1'] = 0
-    w['hidden_layer_1_1'] = 0
-    w['hidden_layer_2_1'] = 0
-    w['hidden_layer_0_2'] = 0
-    w['hidden_layer_1_2'] = 0
-    w['hidden_layer_2_2'] = 0
-    w['hidden_layer_0_3'] = 0
-    w['hidden_layer_1_3'] = 0
-    w['hidden_layer_2_3'] = 0
+    w['hidden_layer_0_1'] = 0 # w_01
+    w['hidden_layer_1_1'] = 0 # w_11
+    w['hidden_layer_2_1'] = 0 # w_21
+    w['hidden_layer_0_2'] = 0 # w_02
+    w['hidden_layer_1_2'] = 0 # w_12
+    w['hidden_layer_2_2'] = 0 # w_22
+    w['hidden_layer_0_3'] = 0 # w_03
+    w['hidden_layer_1_3'] = 0 # w_13
+    w['hidden_layer_2_3'] = 0 # w_23
 
-    w['output_layer_0'] = 0
-    w['output_layer_1'] = 0
-    w['output_layer_2'] = 0
-    w['output_layer_3'] = 0
+    w['output_layer_0'] = 0 # w_o
+    w['output_layer_1'] = 0 # w_1
+    w['output_layer_2'] = 0 # w_2
+    w['output_layer_3'] = 0 # w_3
 
     return w
 
@@ -40,6 +40,20 @@ def optimal_step_weights():
     w = example_weights()
 
     # *** START CODE HERE ***
+    w['hidden_layer_0_1'] = -4  # w_01
+    w['hidden_layer_1_1'] = 1 # w_11
+    w['hidden_layer_2_1'] = 1  # w_21
+    w['hidden_layer_0_2'] = -0.5  # w_02
+    w['hidden_layer_1_2'] = 1  # w_12
+    w['hidden_layer_2_2'] = 0  # w_22
+    w['hidden_layer_0_3'] = -0.5  # w_03
+    w['hidden_layer_1_3'] = 0  # w_13
+    w['hidden_layer_2_3'] = 1  # w_23
+
+    w['output_layer_0'] = 3  # w_o
+    w['output_layer_1'] = 2  # w_1
+    w['output_layer_2'] = -2  # w_2
+    w['output_layer_3'] = -2 # w_3
     # *** END CODE HERE ***
 
     return w
@@ -59,6 +73,7 @@ def optimal_linear_weights():
     w = example_weights()
 
     # *** START CODE HERE ***
+    # a: you can't capture non-linearity with linear activation function as 'y=x'.
     # *** END CODE HERE ***
 
     return w
@@ -69,7 +84,7 @@ if __name__ == "__main__":
     with open('output/step_weights', 'w') as f:
         json.dump(step_weights, f)
 
-    linear_weights = optimal_linear_weights()
-
-    with open('output/linear_weights', 'w') as f:
-        json.dump(linear_weights, f)
+    # linear_weights = optimal_linear_weights()
+    #
+    # with open('output/linear_weights', 'w') as f:
+    #     json.dump(linear_weights, f)
