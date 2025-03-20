@@ -18,6 +18,8 @@ def main(is_semi_supervised, trial_num):
     x, z = load_gmm_dataset(train_path)
     x_tilde = None
 
+    m,n = x.shape
+
     if is_semi_supervised:
         # Split into labeled and unlabeled examples
         labeled_idxs = (z != UNLABELED).squeeze()
@@ -28,10 +30,19 @@ def main(is_semi_supervised, trial_num):
     # *** START CODE HERE ***
     # (1) Initialize mu and sigma by splitting the m data points uniformly at random
     # into K groups, then calculating the sample mean and covariance for each group
+    mu = np.mean(x, axis=0) # (n,)
+
+    # rowvar=False: each row(m) is an observation (sample) and each column(n) is a feature (variable).
+    # rowvar=True: each row(n) is a feature and each row(m) is an observation.
+    sigma = np.cov(x, rowvar=False) # (n,n)
+
     # (2) Initialize phi to place equal probability on each Gaussian
     # phi should be a numpy array of shape (K,)
+    phi = np.full(K, 1/K) # 0.25
+
     # (3) Initialize the w values to place equal probability on each Gaussian
     # w should be a numpy array of shape (m, K)
+    w = np.array([m,K])
     # *** END CODE HERE ***
 
     if is_semi_supervised:
