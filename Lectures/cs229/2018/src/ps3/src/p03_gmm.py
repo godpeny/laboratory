@@ -30,11 +30,17 @@ def main(is_semi_supervised, trial_num):
     # *** START CODE HERE ***
     # (1) Initialize mu and sigma by splitting the m data points uniformly at random
     # into K groups, then calculating the sample mean and covariance for each group
-    mu = np.mean(x, axis=0) # (n,)
+    samples = np.array(np.array_split(x, K)) # (K, m/K, n)
+    mu = np.mean(samples, axis=1) # (K,n)
 
-    # rowvar=False: each row(m) is an observation (sample) and each column(n) is a feature (variable).
-    # rowvar=True: each row(n) is a feature and each row(m) is an observation.
-    sigma = np.cov(x, rowvar=False) # (n,n)
+    sigma = []
+    for i in range(K):
+        # rowvar=False: each row(m) is an observation (sample) and each column(n) is a feature (variable).
+        # rowvar=True: each row(n) is a feature and each row(m) is an observation.
+        sample_sigma = np.cov(samples[i], rowvar=False) # (n, n)
+        sigma.append(sample_sigma)
+
+    sigma = np.array(sigma) # (K, n, n)
 
     # (2) Initialize phi to place equal probability on each Gaussian
     # phi should be a numpy array of shape (K,)
@@ -43,6 +49,7 @@ def main(is_semi_supervised, trial_num):
     # (3) Initialize the w values to place equal probability on each Gaussian
     # w should be a numpy array of shape (m, K)
     w = np.array([m,K])
+
     # *** END CODE HERE ***
 
     if is_semi_supervised:
@@ -87,7 +94,19 @@ def run_em(x, w, phi, mu, sigma):
     while it < max_iter and (prev_ll is None or np.abs(ll - prev_ll) >= eps):
         pass  # Just a placeholder for the starter code
         # *** START CODE HERE
+        m,n = x.shape
         # (1) E-step: Update your estimates in w
+
+        ## denominator
+
+        for i in range(K):
+            mu_j = mu[i] # (n,)
+            sigma_j = sigma[i] # (n,n)
+
+            d = 1 / (np.power((2 * np.pi),(2/n)) * np.power(np.abs(sigma_j),1/2))
+            print(d.shape) # (n,n)
+
+
         # (2) M-step: Update the model parameters phi, mu, and sigma
         # (3) Compute the log-likelihood of the data to check for convergence.
         # By log-likelihood, we mean `ll = sum_x[log(sum_z[p(x|z) * p(z)])]`.
