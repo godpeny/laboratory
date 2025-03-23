@@ -48,7 +48,7 @@ def main(is_semi_supervised, trial_num):
 
     # (3) Initialize the w values to place equal probability on each Gaussian
     # w should be a numpy array of shape (m, K)
-    w = np.array([m,K])
+    w = np.zeros([m,K])
 
     # *** END CODE HERE ***
 
@@ -94,24 +94,76 @@ def run_em(x, w, phi, mu, sigma):
     while it < max_iter and (prev_ll is None or np.abs(ll - prev_ll) >= eps):
         pass  # Just a placeholder for the starter code
         # *** START CODE HERE
+        print(it)
+        it+=1
+
         m,n = x.shape
+
         # (1) E-step: Update your estimates in w
-
-        ## denominator
-
+        numerator = []
+        denominator = 0
         for i in range(K):
             mu_j = mu[i] # (n,)
             sigma_j = sigma[i] # (n,n)
+            phi_j = phi[i] # (1,)
 
-            d = 1 / (np.power((2 * np.pi),(2/n)) * np.power(np.abs(sigma_j),1/2))
-            print(d.shape) # (n,n)
+            nu_first_term = 1 / (np.power((2 * np.pi),(n/2)) * np.power(np.linalg.det(sigma_j),1/2)) # (1,)
+            nu_exp_term = np.exp((-1/2) * np.einsum('ij,jk,ij->i', (x-mu_j), sigma_j, (x-mu_j))) # (m,1)
+            nu = nu_first_term * nu_exp_term * phi_j # (m,1)
 
+            numerator.append(nu)
+            denominator += nu
+
+        w = np.array(numerator/denominator).T # (m, K)
 
         # (2) M-step: Update the model parameters phi, mu, and sigma
+        _phi = np.average(w, axis=0)
+        _mu = [] # (K,n)
+        _sigma = [] # (K,n,n)
+
+        for i in range(K):
+            mu_j = mu[i]  # (n,)
+            w_j = w[:,i] # (m,)
+
+            _m = np.einsum('m,mn->n', w_j, x) / np.sum(w_j)
+            _mu.append(_m)
+
+            _s = np.einsum('m,mn->mn', w_j, (x-mu_j)).T @ (x-mu_j) / np.sum(w_j)
+            _sigma.append(_s)
+
+        _mu = np.array(_mu)
+        _sigma = np.array(_sigma)
+
+        phi = _phi
+        mu = _mu
+        sigma = _sigma
+
         # (3) Compute the log-likelihood of the data to check for convergence.
         # By log-likelihood, we mean `ll = sum_x[log(sum_z[p(x|z) * p(z)])]`.
         # We define convergence by the first iteration where abs(ll - prev_ll) < eps.
         # Hint: For debugging, recall part (a). We showed that ll should be monotonically increasing.
+        _ll = 0
+        for i in range(K):
+            mu_j = mu[i]  # (n,)
+            sigma_j = sigma[i]  # (n,n)
+            phi_j = phi[i]  # (1,)
+            w_j = w[:, i]  # (m,)
+
+            first_term = 1 / (np.power((2 * np.pi), (n / 2)) * np.power(np.linalg.det(sigma_j), 1 / 2))  # (1,)
+            exp_term = np.exp((-1 / 2) * np.einsum('ij,jk,ij->i', (x - mu_j), sigma_j, (x - mu_j)))  # (m,1)
+
+            l = np.log(first_term * exp_term * phi_j / w_j) # (m,1)
+            l = np.sum(w_j * l) #(1,)
+            _ll += l
+
+        prev_ll = ll
+        ll = _ll
+
+        print("***")
+        print(prev_ll)
+        print(ll)
+        if prev_ll is not None and ll is not None:
+            print(np.abs(prev_ll - ll))
         # *** END CODE HERE ***
 
     return w
