@@ -55,7 +55,7 @@ def main(is_semi_supervised, trial_num):
     if is_semi_supervised:
         w = run_semi_supervised_em(x, x_tilde, z, w, phi, mu, sigma)
     else:
-        w = run_em(x, w, phi, mu, sigma)
+        w = run_em_ans(x, w, phi, mu, sigma)
 
     # Plot your predictions
     z_pred = np.zeros(m)
@@ -208,7 +208,7 @@ def run_em_ans(x, w, phi, mu, sigma):
         for i in range(K):
             w[:, i] = (np.exp(-0.5 * ((x - mu[i]).dot(np.linalg.inv(sigma[i])) * (x - mu[i])).sum(axis=1)) /
                        (np.linalg.det(sigma[i]) ** 0.5) * phi[i])
-        w /= w.sum(axis=1)[:, None]
+        w /= w.sum(axis=1)
 
         print(w[:3])
         return
@@ -262,8 +262,50 @@ def run_semi_supervised_em(x, x_tilde, z, w, phi, mu, sigma):
     while it < max_iter and (prev_ll is None or np.abs(ll - prev_ll) >= eps):
         pass  # Just a placeholder for the starter code
         # *** START CODE HERE ***
+        print(it)
+        it += 1
+
+        m, n = x.shape
+        m_tilde, _ = x_tilde.shape
+
         # (1) E-step: Update your estimates in w
+        numerator = []
+        denominator = 0
+        for i in range(K):
+            mu_j = mu[i]  # (n,)
+            sigma_j = sigma[i]  # (n,n)
+            phi_j = phi[i]  # (1,)
+
+            nu_first_term = 1 / (np.power((2 * np.pi), (n / 2)) * np.power(np.linalg.det(sigma_j), 1 / 2))  # (1,)
+            nu_exp_term = np.exp(
+                (-1 / 2) * np.einsum('ij,jk,ik->i', (x - mu_j), np.linalg.inv(sigma_j), (x - mu_j)))  # (m,1)
+            nu = nu_first_term * nu_exp_term * phi_j  # (m,1)
+
+            numerator.append(nu)
+            denominator += nu
+
+        w = np.array(numerator / denominator).T  # (m, K)
+
         # (2) M-step: Update the model parameters phi, mu, and sigma
+        _phi = np.zeros(phi.shape)
+        _mu = np.zeros(mu.shape)
+        _sigma = np.zeros(sigma.shape)
+
+        for i in range(K):
+            w_j = w[:,i] # (m,)
+            mu_j = mu[i] # (n,)
+            sigma_j = sigma[i]
+
+            _phi_j = np.sum(w_j, axis=0) + (alpha * sum(x for x in z if x == i))
+            _phi_j /= m + (alpha * m_tilde)
+            _phi[i] = _phi_j
+
+            _m = (np.einsum('m,mn->n', w_j, x)
+                  + (alpha * x_tilde.sum(np.where(z == i))))
+            _m /= np.sum(w_j) + (alpha * sum(x for x in z if x == i))
+
+
+
         # (3) Compute the log-likelihood of the data to check for convergence.
         # Hint: Make sure to include alpha in your calculation of ll.
         # Hint: For debugging, recall part (a). We showed that ll should be monotonically increasing.
@@ -335,11 +377,11 @@ if __name__ == '__main__':
     # Run NUM_TRIALS trials to see how different initializations
     # affect the final predictions with and without supervision
     for t in range(NUM_TRIALS):
-        main(is_semi_supervised=False, trial_num=t)
+        # main(is_semi_supervised=False, trial_num=t)
 
         # *** START CODE HERE ***
         # Once you've implemented the semi-supervised version,
         # uncomment the following line.
         # You do not need to add any other lines in this code block.
-        # main(with_supervision=True, trial_num=t)
+        main(is_semi_supervised=True, trial_num=t)
         # *** END CODE HERE ***
