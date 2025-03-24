@@ -108,7 +108,7 @@ def run_em(x, w, phi, mu, sigma):
             phi_j = phi[i] # (1,)
 
             nu_first_term = 1 / (np.power((2 * np.pi),(n/2)) * np.power(np.linalg.det(sigma_j),1/2)) # (1,)
-            nu_exp_term = np.exp((-1/2) * np.einsum('ij,jk,ij->i', (x-mu_j), sigma_j, (x-mu_j))) # (m,1)
+            nu_exp_term = np.exp((-1/2) * np.einsum('ij,jk,ik->i', (x-mu_j), np.linalg.inv(sigma_j) , (x-mu_j))) # (m,1)
             nu = nu_first_term * nu_exp_term * phi_j # (m,1)
 
             numerator.append(nu)
@@ -150,7 +150,7 @@ def run_em(x, w, phi, mu, sigma):
             w_j = w[:, i]  # (m,)
 
             first_term = 1 / (np.power((2 * np.pi), (n / 2)) * np.power(np.linalg.det(sigma_j), 1 / 2))  # (1,)
-            exp_term = np.exp((-1 / 2) * np.einsum('ij,jk,ij->i', (x - mu_j), sigma_j, (x - mu_j)))  # (m,1)
+            exp_term = np.exp((-1 / 2) * np.einsum('ij,jk,ik->i', (x - mu_j), np.linalg.inv(sigma_j) , (x - mu_j)))  # (m,1)
 
             l = np.log(first_term * exp_term * phi_j / w_j) # (m,1)
             l = np.sum(w_j * l) #(1,)
@@ -168,6 +168,68 @@ def run_em(x, w, phi, mu, sigma):
 
     return w
 
+
+def run_em_ans(x, w, phi, mu, sigma):
+    """Problem 3(d): EM Algorithm (unsupervised).
+
+    See inline comments for instructions.
+
+    Args:
+        x: Design matrix of shape (m, n).
+        w: Initial weight matrix of shape (m, k).
+        phi: Initial mixture prior, of shape (k,).
+        mu: Initial cluster means, list of k arrays of shape (n,).
+        sigma: Initial cluster covariances, list of k arrays of shape (n, n).
+
+    Returns:
+        Updated weight matrix of shape (m, k) resulting from EM algorithm.
+        More specifically, w[i, j] should contain the probability of
+        example x^(i) belonging to the j-th Gaussian in the mixture.
+    """
+    # No need to change any of these parameters
+    eps = 1e-3  # Convergence threshold
+    max_iter = 1000
+
+    # Stop when the absolute change in log-likelihood is < eps
+    # See below for explanation of the convergence criterion
+    it = 0
+    ll = prev_ll = None
+    while it < max_iter and (prev_ll is None or np.abs(ll - prev_ll) >= eps):
+        # Just a placeholder for the starter code
+        # *** START CODE HERE
+        # (1) E-step: Update your estimates in w
+        # (2) M-step: Update the model parameters phi, mu, and sigma
+        # (3) Compute the log-likelihood of the data to check for convergence.
+        # By log-likelihood, we mean `ll = sum_x[log(sum_z[p(x|z) * p(z)])]`.
+        # We define convergence by the first iteration where abs(ll - prev_ll) < eps.
+        # Hint: For debugging, recall part (a). We showed that ll should be monotonically increasing.
+
+        # E-step
+        for i in range(K):
+            w[:, i] = (np.exp(-0.5 * ((x - mu[i]).dot(np.linalg.inv(sigma[i])) * (x - mu[i])).sum(axis=1)) /
+                       (np.linalg.det(sigma[i]) ** 0.5) * phi[i])
+        w /= w.sum(axis=1)[:, None]
+
+        print(w[:3])
+        return
+
+        # M-step
+        phi = np.mean(w, axis=0)
+        for i in range(K):
+            mu[i] = x.T.dot(w[:, i]) / sum(w[:, i])
+            sigma[i] = (w[:, i][:, None] * (x - mu[i])).T.dot(x - mu[i]) / sum(w[:, i])
+
+        it += 1
+        prev_ll = ll
+        p_xz = np.zeros(w.shape)
+        for i in range(K):
+            p_xz[:, i] = np.exp(-0.5 * ((x - mu[i]).dot(np.linalg.inv(sigma[i])) * (x - mu[i])).sum(axis=1)) / (
+                        np.linalg.det(sigma[i]) ** 0.5) * phi[i]
+        ll = np.sum(np.log(np.sum(p_xz, axis=1)))
+        # *** END CODE HERE ***
+    print(f'Number of iterations:{it}')
+
+    return w
 
 def run_semi_supervised_em(x, x_tilde, z, w, phi, mu, sigma):
     """Problem 3(e): Semi-Supervised EM Algorithm.
