@@ -122,11 +122,7 @@ def run_em(x, w, phi, mu, sigma):
         _sigma = [] # (K,n,n)
 
         for i in range(K):
-            mu_j = mu[i]  # (n,)
-            w_j = w[:,i] # (m,)
-
-            _m = np.einsum('m,mn->n', w_j, x) / np.sum(w_j)
-            _mu.append(_m)
+            mu_j = mu[i]  # (n,)sudo apt-get remove code
 
             _s = np.einsum('m,mn->mn', w_j, (x-mu_j)).T @ (x-mu_j) / np.sum(w_j)
             _sigma.append(_s)
@@ -210,9 +206,6 @@ def run_em_ans(x, w, phi, mu, sigma):
                        (np.linalg.det(sigma[i]) ** 0.5) * phi[i])
         w /= w.sum(axis=1)
 
-        print(w[:3])
-        return
-
         # M-step
         phi = np.mean(w, axis=0)
         for i in range(K):
@@ -266,7 +259,7 @@ def run_semi_supervised_em(x, x_tilde, z, w, phi, mu, sigma):
         it += 1
 
         m, n = x.shape
-        m_tilde, _ = x_tilde.shape
+        m_tilde, n_tilde = x_tilde.shape
 
         # (1) E-step: Update your estimates in w
         numerator = []
@@ -294,21 +287,61 @@ def run_semi_supervised_em(x, x_tilde, z, w, phi, mu, sigma):
         for i in range(K):
             w_j = w[:,i] # (m,)
             mu_j = mu[i] # (n,)
-            sigma_j = sigma[i]
+            sigma_j = sigma[i] # (n,n)
 
             _phi_j = np.sum(w_j, axis=0) + (alpha * sum(x for x in z if x == i))
             _phi_j /= m + (alpha * m_tilde)
             _phi[i] = _phi_j
 
+            x_tilde_j = x_tilde[np.where(np.array([int(x) for x in np.squeeze(z)]) == i)]
+
             _m = (np.einsum('m,mn->n', w_j, x)
-                  + (alpha * x_tilde.sum(np.where(z == i))))
+                  + (alpha * np.sum(x_tilde_j,axis=0)))
             _m /= np.sum(w_j) + (alpha * sum(x for x in z if x == i))
+            _mu[i] = _m
 
+            _s = (np.einsum('m,mn->mn',w_j, (x-mu_j)).T @ (x-mu_j))
+            + (alpha * ((x_tilde_j-mu_j).T @ (x_tilde_j-mu_j)))
+            _s /= np.sum(w_j) + (alpha * sum(x for x in z if x == i))
+            _sigma[i] = _s
 
+        phi = _phi
+        mu = _mu
+        sigma = _sigma
 
         # (3) Compute the log-likelihood of the data to check for convergence.
         # Hint: Make sure to include alpha in your calculation of ll.
         # Hint: For debugging, recall part (a). We showed that ll should be monotonically increasing.
+        _ll = 0
+        for i in range(K):
+            mu_j = mu[i]  # (n,)
+            sigma_j = sigma[i]  # (n,n)
+            phi_j = phi[i]  # (1,)
+            w_j = w[:, i]  # (m,)
+
+            unsup_first_term = 1 / (np.power((2 * np.pi), (n / 2)) * np.power(np.linalg.det(sigma_j), 1 / 2))  # (1,)
+            unsup_exp_term = np.exp((-1 / 2) * np.einsum('ij,jk,ik->i', (x - mu_j), np.linalg.inv(sigma_j) , (x - mu_j)))  # (m,1)
+
+            l_unsup = np.log(unsup_first_term * unsup_exp_term * phi_j / w_j) # (m,1)
+            l_unsup = np.sum(w_j * l_unsup) #(1,)
+
+            x_tilde_j = x_tilde[np.where(np.array([int(x) for x in np.squeeze(z)]) == i)]
+
+            l_sup = np.sum(np.log(phi_j * (np.power((2 * np.pi), (-n_tilde / 2))) * np.power(np.linalg.det(sigma_j), -1/2) 
+                           * np.exp(-1/2*(np.einsum('ij,jk,ik->i', (x_tilde_j - mu_j), np.linalg.inv(sigma_j) , (x_tilde_j - mu_j))))), axis=0)
+
+            l = l_unsup + (alpha * l_sup)
+            _ll += l
+
+        prev_ll = ll
+        ll = _ll
+
+        print("***")
+        print(prev_ll)
+        print(ll)
+        if prev_ll is not None and ll is not None:
+            print(np.abs(prev_ll - ll))
+
         # *** END CODE HERE ***
 
     return w
