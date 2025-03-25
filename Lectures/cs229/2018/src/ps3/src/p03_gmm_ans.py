@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 PLOT_COLORS = ['red', 'green', 'blue', 'orange']  # Colors for your plots
-K = 4           # Number of Gaussians in the mixture model
+K = 4  # Number of Gaussians in the mixture model
 NUM_TRIALS = 3  # Number of trials to run (can be adjusted for debugging)
 UNLABELED = -1  # Cluster label for unlabeled data points (do not change)
 
@@ -21,33 +21,38 @@ def main(is_semi_supervised, trial_num):
     if is_semi_supervised:
         # Split into labeled and unlabeled examples
         labeled_idxs = (z != UNLABELED).squeeze()
-        x_tilde = x[labeled_idxs, :]   # Labeled examples
-        z = z[labeled_idxs, :]         # Corresponding labels
-        x = x[~labeled_idxs, :]        # Unlabeled examples
+        x_tilde = x[labeled_idxs, :]  # Labeled examples
+        z = z[labeled_idxs, :]  # Corresponding labels
+        x = x[~labeled_idxs, :]  # Unlabeled examples
 
     # *** START CODE HERE ***
     # (1) Initialize mu and sigma by splitting the m data points uniformly at random
     # into K groups, then calculating the sample mean and covariance for each group
-    m,n = x.shape
-    samples = np.array(np.array_split(x, K)) # (K, m/K, n)
-    mu = np.mean(samples, axis=1) # (K,n)
-
-    sigma = []
-    for i in range(K):
-        # rowvar=False: each row(m) is an observation (sample) and each column(n) is a feature (variable).
-        # rowvar=True: each row(n) is a feature and each row(m) is an observation.
-        sample_sigma = np.cov(samples[i], rowvar=False) # (n, n)
-        sigma.append(sample_sigma)
-
-    sigma = np.array(sigma) # (K, n, n)
-
     # (2) Initialize phi to place equal probability on each Gaussian
     # phi should be a numpy array of shape (K,)
-    phi = np.full(K, 1/K) # 0.25
-
     # (3) Initialize the w values to place equal probability on each Gaussian
     # w should be a numpy array of shape (m, K)
-    w = np.zeros([m,K])
+    m = x.shape[0]
+    idx = np.random.permutation(m)
+    group_member = int(m / K)
+    mu = []
+    sigma = []
+
+    for i in range(K):
+        if i != K - 1:
+            x_temp = x[idx[i * group_member: (i + 1) * group_member], :]
+        else:
+            x_temp = x[idx[i * group_member: m], :]
+
+        mu_temp = np.mean(x_temp, axis=0)
+        mu.append(mu_temp)
+        sigma.append((x_temp - mu_temp).T.dot(x_temp - mu_temp) / x_temp.shape[0])
+    phi = np.ones(K) / K
+    w = np.ones((m, K)) / K
+
+
+    print(m)
+    return
 
     # *** END CODE HERE ***
 
@@ -91,79 +96,35 @@ def run_em(x, w, phi, mu, sigma):
     it = 0
     ll = prev_ll = None
     while it < max_iter and (prev_ll is None or np.abs(ll - prev_ll) >= eps):
-        pass  # Just a placeholder for the starter code
+        # Just a placeholder for the starter code
         # *** START CODE HERE
-        print(it)
-        it+=1
-
-        m,n = x.shape
-
         # (1) E-step: Update your estimates in w
-        numerator = []
-        denominator = 0
-        for i in range(K):
-            mu_j = mu[i] # (n,)
-            sigma_j = sigma[i] # (n,n)
-            phi_j = phi[i] # (1,)
-
-            nu_first_term = 1 / (np.power((2 * np.pi),(n/2)) * np.power(np.linalg.det(sigma_j),1/2)) # (1,)
-            nu_exp_term = np.exp((-1/2) * np.einsum('ij,jk,ik->i', (x-mu_j), np.linalg.inv(sigma_j) , (x-mu_j))) # (m,1)
-            nu = nu_first_term * nu_exp_term * phi_j # (m,1)
-
-            numerator.append(nu)
-            denominator += nu
-
-        w = np.array(numerator/denominator).T # (m, K)
-
         # (2) M-step: Update the model parameters phi, mu, and sigma
-        _phi = np.average(w, axis=0)
-        _mu = [] # (K,n)
-        _sigma = [] # (K,n,n)
-
-        for i in range(K):
-            mu_j = mu[i]  # (n,)
-            w_j = w[:, i]  # (m,)
-
-            _m = np.einsum('m,mn->n', w_j, x) / np.sum(w_j)
-            _mu.append(_m)
-
-            _s = np.einsum('m,mn->mn', w_j, (x-mu_j)).T @ (x-mu_j) / np.sum(w_j)
-            _sigma.append(_s)
-
-        _mu = np.array(_mu)
-        _sigma = np.array(_sigma)
-
-        phi = _phi
-        mu = _mu
-        sigma = _sigma
-
         # (3) Compute the log-likelihood of the data to check for convergence.
         # By log-likelihood, we mean `ll = sum_x[log(sum_z[p(x|z) * p(z)])]`.
         # We define convergence by the first iteration where abs(ll - prev_ll) < eps.
         # Hint: For debugging, recall part (a). We showed that ll should be monotonically increasing.
-        _ll = 0
+
+        # E-step
         for i in range(K):
-            mu_j = mu[i]  # (n,)
-            sigma_j = sigma[i]  # (n,n)
-            phi_j = phi[i]  # (1,)
-            w_j = w[:, i]  # (m,)
+            w[:, i] = np.exp(-0.5 * ((x - mu[i]).dot(np.linalg.inv(sigma[i])) * (x - mu[i])).sum(axis=1)) / (
+                        np.linalg.det(sigma[i]) ** 0.5) * phi[i]
+        w /= w.sum(axis=1)[:, None]
+        # M-step
+        phi = np.mean(w, axis=0)
+        for i in range(K):
+            mu[i] = x.T.dot(w[:, i]) / sum(w[:, i])
+            sigma[i] = (w[:, i][:, None] * (x - mu[i])).T.dot(x - mu[i]) / sum(w[:, i])
 
-            first_term = 1 / (np.power((2 * np.pi), (n / 2)) * np.power(np.linalg.det(sigma_j), 1 / 2))  # (1,)
-            exp_term = np.exp((-1 / 2) * np.einsum('ij,jk,ik->i', (x - mu_j), np.linalg.inv(sigma_j) , (x - mu_j)))  # (m,1)
-
-            l = np.log(first_term * exp_term * phi_j / w_j) # (m,1)
-            l = np.sum(w_j * l) #(1,)
-            _ll += l
-
+        it += 1
         prev_ll = ll
-        ll = _ll
-
-        print("***")
-        print(prev_ll)
-        print(ll)
-        if prev_ll is not None and ll is not None:
-            print(np.abs(prev_ll - ll))
+        p_xz = np.zeros(w.shape)
+        for i in range(K):
+            p_xz[:, i] = np.exp(-0.5 * ((x - mu[i]).dot(np.linalg.inv(sigma[i])) * (x - mu[i])).sum(axis=1)) / (
+                        np.linalg.det(sigma[i]) ** 0.5) * phi[i]
+        ll = np.sum(np.log(np.sum(p_xz, axis=1)))
         # *** END CODE HERE ***
+    print(f'Number of iterations:{it}')
 
     return w
 
@@ -189,7 +150,7 @@ def run_semi_supervised_em(x, x_tilde, z, w, phi, mu, sigma):
     """
     # No need to change any of these parameters
     alpha = 20.  # Weight for the labeled examples
-    eps = 1e-3   # Convergence threshold
+    eps = 1e-3  # Convergence threshold
     max_iter = 1000
 
     # Stop when the absolute change in log-likelihood is < eps
@@ -199,96 +160,37 @@ def run_semi_supervised_em(x, x_tilde, z, w, phi, mu, sigma):
     while it < max_iter and (prev_ll is None or np.abs(ll - prev_ll) >= eps):
         pass  # Just a placeholder for the starter code
         # *** START CODE HERE ***
-        print(it)
-        it += 1
-
-        m, n = x.shape
-        m_tilde, n_tilde = x_tilde.shape
-
         # (1) E-step: Update your estimates in w
-        numerator = []
-        denominator = 0
-        for i in range(K):
-            mu_j = mu[i]  # (n,)
-            sigma_j = sigma[i]  # (n,n)
-            phi_j = phi[i]  # (1,)
-
-            nu_first_term = 1 / (np.power((2 * np.pi), (n / 2)) * np.power(np.linalg.det(sigma_j), 1 / 2))  # (1,)
-            nu_exp_term = np.exp(
-                (-1 / 2) * np.einsum('ij,jk,ik->i', (x - mu_j), np.linalg.inv(sigma_j), (x - mu_j)))  # (m,1)
-            nu = nu_first_term * nu_exp_term * phi_j  # (m,1)
-
-            numerator.append(nu)
-            denominator += nu
-
-        w = np.array(numerator / denominator).T  # (m, K)
-
         # (2) M-step: Update the model parameters phi, mu, and sigma
-        _phi = np.zeros(phi.shape)
-        _mu = np.zeros(mu.shape)
-        _sigma = np.zeros(sigma.shape)
-
-        for i in range(K):
-            w_j = w[:,i] # (m,)
-            mu_j = mu[i] # (n,)
-            sigma_j = sigma[i] # (n,n)
-
-            _phi_j = np.sum(w_j, axis=0) + (alpha * sum(x for x in z if x == i))
-            _phi_j /= m + (alpha * m_tilde)
-            _phi[i] = _phi_j
-
-            x_tilde_j = x_tilde[np.where(np.array([int(x) for x in np.squeeze(z)]) == i)]
-
-            _m = (np.einsum('m,mn->n', w_j, x)
-                  + (alpha * np.sum(x_tilde_j,axis=0)))
-            _m /= np.sum(w_j) + (alpha * sum(x for x in z if x == i))
-            _mu[i] = _m
-
-            _s = (np.einsum('m,mn->mn',w_j, (x-mu_j)).T @ (x-mu_j))
-            + (alpha * ((x_tilde_j-mu_j).T @ (x_tilde_j-mu_j)))
-            _s /= np.sum(w_j) + (alpha * sum(x for x in z if x == i))
-            _sigma[i] = _s
-
-        phi = _phi
-        mu = _mu
-        sigma = _sigma
-
         # (3) Compute the log-likelihood of the data to check for convergence.
         # Hint: Make sure to include alpha in your calculation of ll.
         # Hint: For debugging, recall part (a). We showed that ll should be monotonically increasing.
-        _ll = 0
+
+        # E-step
         for i in range(K):
-            mu_j = mu[i]  # (n,)
-            sigma_j = sigma[i]  # (n,n)
-            phi_j = phi[i]  # (1,)
-            w_j = w[:, i]  # (m,)
+            w[:, i] = np.exp(-0.5 * ((x - mu[i]).dot(np.linalg.inv(sigma[i])) * (x - mu[i])).sum(axis=1)) / (
+                        np.linalg.det(sigma[i]) ** 0.5) * phi[i]
+        w /= w.sum(axis=1)[:, None]
+        # M-step
+        for i in range(K):
+            phi[i] = (sum(w[:, i]) + alpha * sum(z == i)) / (x.shape[0] + alpha * x_tilde.shape[0])
+            x_tilde_i = x_tilde[z.reshape(-1, ) == i]
+            mu[i] = (x.T.dot(w[:, i]) + alpha * x_tilde_i.sum(axis=0)) / (sum(w[:, i]) + alpha * sum(z == i))
+            sigma[i] = ((w[:, i][:, None] * (x - mu[i])).T.dot(x - mu[i]) + alpha * (x_tilde_i - mu[i]).T.dot(
+                x_tilde_i - mu[i])) / (sum(w[:, i]) + alpha * sum(z == i))
 
-            unsup_first_term = 1 / (np.power((2 * np.pi), (n / 2)) * np.power(np.linalg.det(sigma_j), 1 / 2))  # (1,)
-            unsup_exp_term = np.exp((-1 / 2) * np.einsum('ij,jk,ik->i', (x - mu_j), np.linalg.inv(sigma_j) , (x - mu_j)))  # (m,1)
-
-            l_unsup = np.log(unsup_first_term * unsup_exp_term * phi_j / w_j) # (m,1)
-            l_unsup = np.sum(w_j * l_unsup) #(1,)
-
-            x_tilde_j = x_tilde[np.where(np.array([int(x) for x in np.squeeze(z)]) == i)]
-
-            l_sup = np.sum(np.log(phi_j * (np.power((2 * np.pi), (-n_tilde / 2))) * np.power(np.linalg.det(sigma_j), -1/2) 
-                           * np.exp(-1/2*(np.einsum('ij,jk,ik->i', (x_tilde_j - mu_j), np.linalg.inv(sigma_j) , (x_tilde_j - mu_j))))), axis=0)
-
-            l = l_unsup + (alpha * l_sup)
-            _ll += l
-
+        it += 1
         prev_ll = ll
-        ll = _ll
-
-        print("***")
-        print(prev_ll)
-        print(ll)
-        if prev_ll is not None and ll is not None:
-            print(np.abs(prev_ll - ll))
-
+        p_xz = np.zeros(w.shape)
+        for i in range(K):
+            p_xz[:, i] = np.exp(-0.5 * ((x - mu[i]).dot(np.linalg.inv(sigma[i])) * (x - mu[i])).sum(axis=1)) / (
+                        np.linalg.det(sigma[i]) ** 0.5) * phi[i]
+        ll = np.sum(np.log(np.sum(p_xz, axis=1)))
         # *** END CODE HERE ***
+    print(f'Number of iterations:{it}')
 
     return w
+
 
 # *** START CODE HERE ***
 # Helper functions
@@ -313,7 +215,7 @@ def plot_gmm_preds(x, z, with_supervision, plot_id):
         alpha = 0.25 if z_ < 0 else 0.75
         plt.scatter(x_1, x_2, marker='.', c=color, alpha=alpha)
 
-    file_name = 'p03_pred{}_{}.pdf'.format('_ss' if with_supervision else '', plot_id)
+    file_name = 'p04_pred{}_{}.png'.format('_ss' if with_supervision else '', plot_id)
     save_path = os.path.join('output', file_name)
     plt.savefig(save_path)
 
@@ -353,11 +255,11 @@ if __name__ == '__main__':
     # Run NUM_TRIALS trials to see how different initializations
     # affect the final predictions with and without supervision
     for t in range(NUM_TRIALS):
-        main(is_semi_supervised=False, trial_num=t)
+        # main(is_semi_supervised=False, trial_num=t)
 
         # *** START CODE HERE ***
         # Once you've implemented the semi-supervised version,
         # uncomment the following line.
         # You do not need to add any other lines in this code block.
-        # main(is_semi_supervised=True, trial_num=t)
+        main(is_semi_supervised=True, trial_num=t)
         # *** END CODE HERE ***
