@@ -29,7 +29,8 @@ def main(is_semi_supervised, trial_num):
     # (1) Initialize mu and sigma by splitting the m data points uniformly at random
     # into K groups, then calculating the sample mean and covariance for each group
     m,n = x.shape
-    samples = np.array(np.array_split(x, K)) # (K, m/K, n)
+    idx = np.random.permutation(m)
+    samples = np.array(np.array_split(x[idx], K)) # (K, m/K, n)
     mu = np.mean(samples, axis=1) # (K,n)
 
     sigma = []
@@ -47,7 +48,7 @@ def main(is_semi_supervised, trial_num):
 
     # (3) Initialize the w values to place equal probability on each Gaussian
     # w should be a numpy array of shape (m, K)
-    w = np.zeros([m,K])
+    w = np.ones((m,K)) / K
 
     # *** END CODE HERE ***
 
@@ -231,22 +232,20 @@ def run_semi_supervised_em(x, x_tilde, z, w, phi, mu, sigma):
         for i in range(K):
             w_j = w[:,i] # (m,)
             mu_j = mu[i] # (n,)
-            sigma_j = sigma[i] # (n,n)
 
-            _phi_j = np.sum(w_j, axis=0) + (alpha * sum(x for x in z if x == i))
-            _phi_j /= m + (alpha * m_tilde)
+            _phi_j = np.sum(w_j, axis=0) + (alpha * np.sum(z == i))
+            _phi_j /= (m + (alpha * m_tilde))
             _phi[i] = _phi_j
 
             x_tilde_j = x_tilde[np.where(np.array([int(x) for x in np.squeeze(z)]) == i)]
 
             _m = (np.einsum('m,mn->n', w_j, x)
                   + (alpha * np.sum(x_tilde_j,axis=0)))
-            _m /= np.sum(w_j) + (alpha * sum(x for x in z if x == i))
-            _mu[i] = _m
+            _m /= (np.sum(w_j) + (alpha * np.sum(z == i)))
+            _mu[i] = mu_j = _m
 
-            _s = (np.einsum('m,mn->mn',w_j, (x-mu_j)).T @ (x-mu_j))
-            + (alpha * ((x_tilde_j-mu_j).T @ (x_tilde_j-mu_j)))
-            _s /= np.sum(w_j) + (alpha * sum(x for x in z if x == i))
+            _s = (np.einsum('m,mn->mn',w_j, (x-mu_j)).T @ (x-mu_j)) + (alpha * ((x_tilde_j-mu_j).T @ (x_tilde_j-mu_j)))
+            _s /= (np.sum(w_j) + (alpha * np.sum(z == i)))
             _sigma[i] = _s
 
         phi = _phi
@@ -353,11 +352,11 @@ if __name__ == '__main__':
     # Run NUM_TRIALS trials to see how different initializations
     # affect the final predictions with and without supervision
     for t in range(NUM_TRIALS):
-        main(is_semi_supervised=False, trial_num=t)
+        # main(is_semi_supervised=False, trial_num=t)
 
         # *** START CODE HERE ***
         # Once you've implemented the semi-supervised version,
         # uncomment the following line.
         # You do not need to add any other lines in this code block.
-        # main(is_semi_supervised=True, trial_num=t)
+        main(is_semi_supervised=True, trial_num=t)
         # *** END CODE HERE ***
