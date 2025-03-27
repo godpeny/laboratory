@@ -102,3 +102,8 @@ if __name__ == '__main__':
 
     main(peppers=ps_model, K=num_clusters)
     main(peppers=pl_model, K=num_clusters)
+
+    # p05b
+    # originally, each pixel's (r,g,b) was 3*8 bits(0~255, 0~255, 0~255),
+    # but now compressed into 4 bits (0~15 = 16 colors).
+    # so the compression factor is 24/4 = 6.
