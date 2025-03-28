@@ -32,7 +32,15 @@ def main(peppers, K):
     for it in range(max_iter):
         print(it + 1)
 
-        # (1) color the points
+        # (1) color the points (assignment)
+        # It is very important to note that in a proper k-means implementation for color quantization,
+        # the assignment step and the update step should use the original pixel colors to compute the new centroids.
+        # If you update the centroids from the already quantized image (where each pixel is exactly the centroid's color),
+        # then nothing will change—the centroids would remain the same.
+        # That’s why you typically maintain two copies: A and new_A
+        # - A: The original image pixel colors remain unchanged.
+        # - new_A: updated to display the centroid colors for visualization purposes.
+
         print("  (1) color the points")
         for i in range(height):
             for j in range(width):
@@ -51,7 +59,10 @@ def main(peppers, K):
                 new_A[i][j] = min_rgb
                 C[i][j] = min_idx
 
-        # (2) update mean
+        # (2) update mean (update)
+        # Compute the new centroid as the mean of the original pixel values in that cluster.
+        # This allows the centroids to shift toward the true mean color of the pixels,
+        # even though the visualization might show the current centroid values.
         print("  (2) update mean")
         for idx, centroid in enumerate(centroids):
             numerator = [0,0,0]
