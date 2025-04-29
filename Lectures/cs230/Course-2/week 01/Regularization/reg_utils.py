@@ -81,9 +81,9 @@ def initialize_parameters(layer_dims):
     for l in range(1, L):
         parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l-1]) / np.sqrt(layer_dims[l-1])
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
-        
-        assert(parameters['W' + str(l)].shape == layer_dims[l], layer_dims[l-1])
-        assert(parameters['W' + str(l)].shape == layer_dims[l], 1)
+
+        assert parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l-1])
+        assert parameters['b' + str(l)].shape == (layer_dims[l], 1)
 
         
     return parameters
@@ -200,7 +200,7 @@ def predict(X, y, parameters):
     """
     
     m = X.shape[1]
-    p = np.zeros((1,m), dtype = np.int)
+    p = np.zeros((1,m), dtype = int)
     
     # Forward propagation
     a3, caches = forward_propagation(X, parameters)
