@@ -142,7 +142,9 @@ def compute_loss(a3, Y):
     """
     
     m = Y.shape[1]
-    logprobs = np.multiply(-np.log(a3),Y) + np.multiply(-np.log(1 - a3), 1 - Y)
+    epsilon = 1e-15
+
+    logprobs = np.multiply(-np.log(a3 + epsilon),Y) + np.multiply(-np.log(1 - a3 + epsilon), 1 - Y)
     loss = 1./m * np.nansum(logprobs)
     
     return loss
@@ -183,7 +185,7 @@ def predict(X, y, parameters):
     """
     
     m = X.shape[1]
-    p = np.zeros((1,m), dtype = np.int)
+    p = np.zeros((1,m), dtype = int)
     
     # Forward propagation
     a3, caches = forward_propagation(X, parameters)
