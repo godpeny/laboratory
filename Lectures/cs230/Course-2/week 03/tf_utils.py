@@ -1,7 +1,8 @@
 import h5py
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import math
+
 
 def load_dataset():
     train_dataset = h5py.File('datasets/train_signs.h5', "r")
@@ -66,7 +67,8 @@ def convert_to_one_hot(Y, C):
 
 
 def predict(X, parameters):
-    
+    tf.disable_v2_behavior()
+
     W1 = tf.convert_to_tensor(parameters["W1"])
     b1 = tf.convert_to_tensor(parameters["b1"])
     W2 = tf.convert_to_tensor(parameters["W2"])
