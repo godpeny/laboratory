@@ -96,7 +96,11 @@ def backward_relu(x, grad_outputs):
     """
 
     # *** START CODE HERE ***
+    d=x
+    d[d<0]=0
+    d[d>0]=1
 
+    return d * grad_outputs
     # *** END CODE HERE ***
 
 def get_initial_params():
@@ -181,6 +185,22 @@ def backward_convolution(conv_W, conv_b, data, output_grad):
     """
 
     # *** START CODE HERE ***
+    conv_channels, _, conv_width, conv_height = conv_W.shape
+    input_channels, input_width, input_height = data.shape
+
+    output_data = np.zeros(data.shape) # (# input channels, width, height)
+    output_weights = np.zeros(conv_W.shape) # (# output channels, # input channels, convolution width, convolution height )
+    output_bias = np.sum(output_grad,axis=(1,2)) # sum over (width * height)
+
+    for x in range(input_width - conv_width + 1):
+        for y in range(input_height - conv_height + 1):
+            for output_channel in range(conv_channels):
+                # w.r.t. input
+                output_weights[output_channel, :, :, :] += output_grad[output_channel,x,y] * data[:, x:(x+conv_width), y:(y+conv_height)]
+                # w.r.t. filter
+                output_data[:,x:(x+conv_width), y:(y+conv_height)] += output_grad[output_channel,x,y] * conv_W[output_channel,:,:,:]
+
+    return output_weights, output_bias, output_data
     # *** END CODE HERE ***
 
 def forward_max_pool(data, pool_width, pool_height):
