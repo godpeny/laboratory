@@ -41,6 +41,31 @@ def backward_softmax(x, grad_outputs):
     """
     
     # *** START CODE HERE ***
+    """
+    l = len(x)
+    s = forward_softmax(x)
+    result = np.zeros(shape=l,dtype=float)
+    
+    for i in range(l):
+        s_i = s[i]
+        row = 0.0
+        for j in range(l):
+            s_j = s[j]
+            grad = grad_outputs[j]
+
+            if i == j:
+                row += (s_i * (1 - s_j)) * grad
+            else:
+                row += -(s_i * s_j) * grad
+
+        result[i] = row
+    return result
+    """
+
+    # apply vectorization
+    s = forward_softmax(x).reshape(-1,1) # (n,1)
+    j = np.diag(s) - np.dot(s,s.T) # (n,n)
+    return np.dot(j,grad_outputs)
     # *** END CODE HERE ***
 
 def forward_relu(x):
@@ -71,6 +96,7 @@ def backward_relu(x, grad_outputs):
     """
 
     # *** START CODE HERE ***
+
     # *** END CODE HERE ***
 
 def get_initial_params():
