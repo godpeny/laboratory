@@ -243,6 +243,23 @@ def backward_max_pool(data, pool_width, pool_height, output_grad):
     """
     
     # *** START CODE HERE ***
+    input_channels, input_width, input_height = data.shape
+    output = np.zeros((input_channels, input_width, input_height))
+
+    for x in range(0, input_width, pool_width):
+        for y in range(0, input_height, pool_height):
+            window = data[:,x:x+pool_width, y:y+pool_height]
+
+            # Find the index of the max value within the window
+            local_max_idx = np.unravel_index(np.argmax(window), window.shape)
+            # Convert local index to global index in original matrix
+            global_max_idx = (x + local_max_idx[0], y + local_max_idx[1])
+
+            # max element = 1. now, multiplying gradient.
+            output[:,global_max_idx[0], global_max_idx[1]] = output_grad[:,x // pool_width, y // pool_height]
+
+    return output
+
     # *** END CODE HERE ***
 
 def forward_cross_entropy_loss(probabilities, labels):
