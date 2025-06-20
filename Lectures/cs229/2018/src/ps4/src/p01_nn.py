@@ -96,11 +96,8 @@ def backward_relu(x, grad_outputs):
     """
 
     # *** START CODE HERE ***
-    d=x
-    d[d<0]=0
-    d[d>0]=1
-
-    return d * grad_outputs
+    grad_outputs[x<=0]=0
+    return grad_outputs
     # *** END CODE HERE ***
 
 def get_initial_params():
@@ -297,6 +294,7 @@ def backward_cross_entropy_loss(probabilities, labels):
     """
 
     # *** START CODE HERE ***
+    return -labels/(probabilities + 1e-8)
     # *** END CODE HERE ***
 
 def forward_linear(weights, bias, data):
@@ -328,6 +326,10 @@ def backward_linear(weights, bias, data, output_grad):
     """
 
     # *** START CODE HERE ***
+    grad_weights = np.outer(data, output_grad) # (#input, #output)
+    grad_data = weights @ output_grad # (#input)
+    grad_bias = output_grad
+    return grad_weights, grad_bias, grad_data
     # *** END CODE HERE ***
 
 def forward_prop(data, labels, params):
@@ -387,6 +389,38 @@ def backward_prop(data, labels, params):
     """
 
     # *** START CODE HERE ***
+    W1 = params['W1']
+    b1 = params['b1']
+    W2 = params['W2']
+    b2 = params['b2']
+
+    # forward propagation
+    first_convolution = forward_convolution(W1, b1, data)
+    first_max_pool = forward_max_pool(first_convolution, MAX_POOL_SIZE, MAX_POOL_SIZE)
+    first_after_relu = forward_relu(first_max_pool)
+
+    flattened = np.reshape(first_after_relu, (-1))
+
+    logits = forward_linear(W2, b2, flattened)
+
+    y = forward_softmax(logits)
+
+    # back propagation
+    grad_loss = backward_cross_entropy_loss(y, labels)
+    grad_softmax = backward_softmax(logits, grad_loss)
+    dW2, db2, dX = backward_linear(W2, b2, flattened, grad_softmax)
+    dX_reshape = np.reshape(dX, first_after_relu.shape)
+    grad_relu = backward_relu(first_max_pool, dX_reshape)
+    grad_max_pool = backward_max_pool(first_convolution, MAX_POOL_SIZE, MAX_POOL_SIZE, grad_relu)
+    dW1, db1, dX = backward_convolution(W1, b1, data, grad_max_pool)
+
+    total_grad = {} # dictionary
+    total_grad["W1"] = dW1
+    total_grad["W2"] = dW2
+    total_grad["b1"] = db1
+    total_grad["b2"] = db2
+
+    return total_grad
     # *** END CODE HERE ***
 
 def forward_prop_batch(batch_data, batch_labels, params, forward_prop_func):
@@ -470,7 +504,7 @@ def nn_train(
     return params, cost_dev, accuracy_dev
 
 def nn_test(data, labels, params):
-    output, cost = forward_pr(data, labels, params)
+    output, cost = forward_prop(data, labels, params)
     accuracy = compute_accuracy(output, labels)
     return accuracy
 
