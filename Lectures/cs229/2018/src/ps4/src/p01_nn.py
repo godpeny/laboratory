@@ -63,8 +63,21 @@ def backward_softmax(x, grad_outputs):
     """
 
     # apply vectorization
+    """
+    use 'diagflat' to create diagonal matrix from 2D matrix
+    'diagflat - flatten and create diagonal
+    'diag' - extract main diagonal when 2D
+    e.g.,
+    a = np.array([[1], [2], [3]])  # shape (3, 1)
+    np.diag(a)
+    >> array([1, 2, 3])
+    np.diagflat(a)
+    >> array([[1, 0, 0],
+             [0, 2, 0],
+             [0, 0, 3]])
+    """
     s = forward_softmax(x).reshape(-1,1) # (n,1)
-    j = np.diag(s) - np.dot(s,s.T) # (n,n)
+    j = np.diagflat(s) - np.dot(s,s.T) # (n,n)
     return np.dot(j,grad_outputs)
     # *** END CODE HERE ***
 
@@ -294,7 +307,7 @@ def backward_cross_entropy_loss(probabilities, labels):
     """
 
     # *** START CODE HERE ***
-    return -labels/(probabilities + 1e-8)
+    return -labels/(probabilities)
     # *** END CODE HERE ***
 
 def forward_linear(weights, bias, data):
