@@ -21,7 +21,8 @@ def update_W(W, x, learning_rate):
     """
     
     # *** START CODE HERE ***
-    updated_W = W + learning_rate * (np.linalg.inv(W.T) - np.sign(W @ x)@x.T)
+    # fix to generate output matrix (previously it was scalar)
+    updated_W = W + learning_rate * (np.linalg.inv(W.T) - np.outer(np.sign(W @ x), x.T))
     # *** END CODE HERE ***
 
     return updated_W
@@ -43,7 +44,8 @@ def unmix(X, W):
 
 
     # *** START CODE HERE ***
-    S = X@W
+
+    S = np.dot(X, W.T) # W is training as row vector (W_j is row) so transpose. (X is also row vector)
     # *** END CODE HERE ***
 
     return S
