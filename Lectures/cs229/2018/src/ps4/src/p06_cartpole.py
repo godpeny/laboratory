@@ -3,6 +3,7 @@ from env import CartPole, Physics
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import lfilter
+import random
 
 """
 Parts of the code (cart and pole dynamics, and the state
@@ -125,6 +126,22 @@ def choose_action(state, mdp_data):
     """
 
     # *** START CODE HERE ***
+    transition_probs = mdp_data['transition_probs'] # (163, 163, 2)
+    value = mdp_data['value'] # (163,)
+
+    transition_probs_for_state = transition_probs[state]
+    transition_probs_for_state_zero = transition_probs_for_state[:,0]
+    transition_probs_for_state_one = transition_probs_for_state[:,1]
+
+    sum_policy_zero = np.dot(transition_probs_for_state_zero, value)
+    sum_policy_one = np.dot(transition_probs_for_state_one, value)
+
+    if sum_policy_zero > sum_policy_one:
+        return 0
+    elif sum_policy_zero < sum_policy_one:
+        return 1
+    else:
+        return random.randint(0, 1)
     # *** END CODE HERE ***
 
 def update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_state, reward):
@@ -149,6 +166,11 @@ def update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_stat
     """
 
     # *** START CODE HERE ***
+    # print(mdp_data['transition_counts'].shape) # (163, 163, 2)
+    # print(mdp_data['reward_counts'].shape) # (163, 2)
+
+    mdp_data['transition_counts'][state][new_state][action] += 1
+    mdp_data['reward_counts'][new_state][action] += np.abs(reward) # record +=1 only reward is -1
     # *** END CODE HERE ***
 
     # This function does not return anything
@@ -172,6 +194,18 @@ def update_mdp_transition_probs_reward(mdp_data):
     """
 
     # *** START CODE HERE ***
+    # print(mdp_data['transition_probs'].shape) # (163, 163, 2)
+    # print(mdp_data['reward'].shape) # (163,)
+
+    # print(mdp_data['transition_counts'].shape) # (163, 163, 2)
+    # print(mdp_data['reward_counts'].shape) # (163, 2)
+    if np.sum(mdp_data['transition_counts']) == 0.0:
+        return mdp_data
+
+    mdp_data['transition_probs'][:,:,0] = mdp_data['transition_counts'][:,:,0] / np.sum(mdp_data['transition_counts'][:,:,0])
+    mdp_data['transition_probs'][:,:,1] = mdp_data['transition_counts'][:,:,1] / np.sum(mdp_data['transition_counts'][:,:,1])
+    mdp_data['reward'] = np.average(mdp_data['reward_counts'], axis=1)
+
     # *** END CODE HERE ***
 
     # This function does not return anything
@@ -198,11 +232,27 @@ def update_mdp_value(mdp_data, tolerance, gamma):
     """
 
     # *** START CODE HERE ***
+    # print(mdp_data['value'].shape) # (163,)
+    # print(mdp_data['reward'].shape) # (163,)
+    # print(mdp_data['transition_probs'].shape) # (163, 163, 2)
+    # print(mdp_data['value'].shape) # (163,)
+
+    nValue = np.zeros(mdp_data['value'].shape)
+
+    for i in range(len(mdp_data['value'])): # update for every s
+        nValue[i] = mdp_data['reward'][i] + gamma * (np.max(mdp_data['transition_probs'][i,:,:] * mdp_data['value'][i]))
+
+    if np.array(np.abs(mdp_data['value'] - nValue)).any() < tolerance:
+        return True
+    else:
+        mdp_data['value'] = nValue
+        return False
+
     # *** END CODE HERE ***
 
 def main(plot=True):
     # Seed the randomness of the simulation so this outputs the same thing each time
-    seed = 0
+    seed = 3
     np.random.seed(seed)
 
     # Simulation parameters
