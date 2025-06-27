@@ -3,7 +3,6 @@ from env import CartPole, Physics
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import lfilter
-import random
 
 """
 Parts of the code (cart and pole dynamics, and the state
@@ -79,6 +78,7 @@ initial learning quickly, and start the display only after the
 performance is reasonable.
 """
 
+
 def initialize_mdp_data(num_states):
     """
     Return a variable that contains all the parameters/state you need for your MDP.
@@ -112,6 +112,7 @@ def initialize_mdp_data(num_states):
         'num_states': num_states,
     }
 
+
 def choose_action(state, mdp_data):
     """
     Choose the next action (0 or 1) that is optimal according to your current
@@ -124,25 +125,15 @@ def choose_action(state, mdp_data):
     Returns:
         0 or 1 that is optimal according to your current MDP
     """
-
-    # *** START CODE HERE ***
-    transition_probs = mdp_data['transition_probs'] # (163, 163, 2)
-    value = mdp_data['value'] # (163,)
-
-    transition_probs_for_state = transition_probs[state]
-    transition_probs_for_state_zero = transition_probs_for_state[:,0]
-    transition_probs_for_state_one = transition_probs_for_state[:,1]
-
-    sum_policy_zero = np.dot(transition_probs_for_state_zero, value)
-    sum_policy_one = np.dot(transition_probs_for_state_one, value)
-
-    if sum_policy_zero > sum_policy_one:
+    value = mdp_data["value"]
+    transition_probs = mdp_data["transition_probs"]
+    expected_reward_0 = np.dot(value, transition_probs[state, :, 0])
+    expected_reward_1 = np.dot(value, transition_probs[state, :, 1])
+    if expected_reward_0 > expected_reward_1:
         return 0
-    elif sum_policy_zero < sum_policy_one:
-        return 1
     else:
-        return random.randint(0, 1)
-    # *** END CODE HERE ***
+        return 1
+
 
 def update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_state, reward):
     """
@@ -164,19 +155,14 @@ def update_mdp_transition_counts_reward_counts(mdp_data, state, action, new_stat
     Returns:
         Nothing
     """
-
-    # *** START CODE HERE ***
-    # print(mdp_data['transition_counts'].shape) # (163, 163, 2)
-    # print(mdp_data['reward_counts'].shape) # (163, 2)
-
-    mdp_data['transition_counts'][state][new_state][action] += 1
-    mdp_data['reward_counts'][new_state][1] += 1 # reward_counts[s,1] - # of time visiting state s
-    if reward == -1:
-        mdp_data['reward_counts'][new_state][0] += 1 # reward_counts[s,0] - # of time get reward corresponding to state s
-    # *** END CODE HERE ***
+    mdp_data["transition_counts"][state, new_state, action] += 1
+    mdp_data["reward_counts"][new_state, 1] += 1
+    if reward < 0:
+        mdp_data["reward_counts"][new_state, 0] += 1
 
     # This function does not return anything
     return
+
 
 def update_mdp_transition_probs_reward(mdp_data):
     """
@@ -186,7 +172,7 @@ def update_mdp_transition_probs_reward(mdp_data):
     been tried before, or the state has never been visited before. In that
     case, you must not change that component (and thus keep it at the
     initialized uniform distribution).
-    
+
     Args:
         mdp_data: The data for your MDP. See initialize_mdp_data.
 
@@ -194,31 +180,19 @@ def update_mdp_transition_probs_reward(mdp_data):
         Nothing
 
     """
-
-    # *** START CODE HERE ***
-    # print(mdp_data['transition_probs'].shape) # (163, 163, 2)
-    # print(mdp_data['reward'].shape) # (163,)
-
-    # print(mdp_data['transition_counts'].shape) # (163, 163, 2)
-    # print(mdp_data['reward_counts'].shape) # (163, 2)
-    if np.sum(mdp_data['transition_counts']) == 0.0:
-        return mdp_data
-
-    for i in range(mdp_data['num_states']):
-        # note that transition_probs hold (state:new_state:action)
-        # fix to mean across just the new_state dimension.
-        if np.sum(mdp_data['transition_counts'][i,:,0]) != 0:
-            mdp_data['transition_probs'][i,:,0] = mdp_data['transition_counts'][i,:,0] / np.sum(mdp_data['transition_counts'][i,:,0])
-        if np.sum(mdp_data['transition_counts'][i, :, 1]) != 0:
-            mdp_data['transition_probs'][i,:,1] = mdp_data['transition_counts'][i,:,1] / np.sum(mdp_data['transition_counts'][i,:,1])
-
-        if mdp_data['reward_counts'][i][1] > 0:
-            mdp_data['reward'][i] = -mdp_data['reward_counts'][i][0] / mdp_data['reward_counts'][i][1] # expected reward of visiting state
-
-    # *** END CODE HERE ***
+    num_states = mdp_data["num_states"]
+    for s in range(num_states):
+        for a in range(2):
+            total = np.sum(mdp_data["transition_counts"][s, :, a])
+            if total == 0:
+                continue
+            mdp_data["transition_probs"][s, :, a] = mdp_data["transition_counts"][s, :, a] / total
+        if mdp_data["reward_counts"][s, 1] > 0:
+            mdp_data["reward"][s] = -mdp_data["reward_counts"][s, 0] / mdp_data["reward_counts"][s, 1]
 
     # This function does not return anything
     return
+
 
 def update_mdp_value(mdp_data, tolerance, gamma):
     """
@@ -229,7 +203,7 @@ def update_mdp_value(mdp_data, tolerance, gamma):
     at the top of the file.
 
     Return true if it converges within one iteration.
-    
+
     Args:
         mdp_data: The data for your MDP. See initialize_mdp_data.
         tolerance: The tolerance to use for the convergence criterion.
@@ -239,28 +213,24 @@ def update_mdp_value(mdp_data, tolerance, gamma):
         True if the value iteration converged in one iteration
 
     """
-
-    # *** START CODE HERE ***
-    # print(mdp_data['value'].shape) # (163,)
-    # print(mdp_data['reward'].shape) # (163,)
-    # print(mdp_data['transition_probs'].shape) # (163, 163, 2)
-    # print(mdp_data['value'].shape) # (163,)
     iter = 0
+    reward = mdp_data["reward"]
+    transition_probs = mdp_data["transition_probs"]
+
     while True:
         iter += 1
-        prev_value = mdp_data['value']
-        # the reason to do this calculation is that,
-        # transition_probs hold (state:new_state:action)
-        # and expected reward from the state can be calculated by new_state[j] * prev_value[j]
-        mdp_data['value'] = mdp_data['reward'] + (gamma * (np.maximum(mdp_data['transition_probs'][:,:,0] @ prev_value, mdp_data['transition_probs'][:,:,1] @ prev_value)))
+        prev_value = mdp_data["value"]
 
-        # fix so that assume convergence when the maximum absolute change in the value function
-        # plus, a.any() only return true when if any element is non-zero.
-        if np.max(np.abs(mdp_data['value'] - prev_value)) < tolerance:
+        expected_reward_0 = transition_probs[:, :, 0] @ prev_value
+        expected_reward_1 = transition_probs[:, :, 1] @ prev_value
+        value = reward + gamma * np.maximum(expected_reward_0, expected_reward_1)
+        mdp_data["value"] = value
+
+        if np.max(np.abs(value - prev_value)) < tolerance:
             break
+
     return iter == 1
 
-    # *** END CODE HERE ***
 
 def main(plot=True):
     # Seed the randomness of the simulation so this outputs the same thing each time
@@ -378,9 +348,9 @@ def main(plot=True):
         log_tstf = np.log(np.array(time_steps_to_failure))
         plt.plot(np.arange(len(time_steps_to_failure)), log_tstf, 'k')
         window = 30
-        w = np.array([1/window for _ in range(window)])
+        w = np.array([1 / window for _ in range(window)])
         weights = lfilter(w, 1, log_tstf)
-        x = np.arange(window//2, len(log_tstf) - window//2)
+        x = np.arange(window // 2, len(log_tstf) - window // 2)
         plt.plot(x, weights[window:len(log_tstf)], 'r--')
         plt.xlabel('Num failures')
         plt.ylabel('Log of num steps to failure')
@@ -388,6 +358,7 @@ def main(plot=True):
         plt.savefig('output/control_{}.png'.format(seed))
 
     return np.array(time_steps_to_failure)
-    
+
+
 if __name__ == '__main__':
     main()
