@@ -11,6 +11,8 @@ from nst_utils import *
 
 import numpy as np
 import tensorflow as tf
+import imageio.v2 as imageio  # modern replacement
+
 
 class CONFIG:
     IMAGE_WIDTH = 400
@@ -91,8 +93,6 @@ def load_vgg_model(path):
         assert layer_name == expected_layer_name
         return W, b
 
-        return W, b
-
     def _relu(conv2d_layer):
         """
         Return the RELU function wrapped over a TensorFlow layer. Expects a
@@ -108,7 +108,7 @@ def load_vgg_model(path):
         W, b = _weights(layer, layer_name)
         W = tf.constant(W)
         b = tf.constant(np.reshape(b, (b.size)))
-        return tf.nn.conv2d(prev_layer, filter=W, strides=[1, 1, 1, 1], padding='SAME') + b
+        return tf.nn.conv2d(prev_layer, W, [1, 1, 1, 1], 'SAME') + b
 
     def _conv2d_relu(prev_layer, layer, layer_name):
         """
@@ -177,12 +177,11 @@ def reshape_and_normalize_image(image):
     
     return image
 
-
 def save_image(path, image):
-    
+
     # Un-normalize the image so that it looks good
     image = image + CONFIG.MEANS
-    
+
     # Clip and Save the image
     image = np.clip(image[0], 0, 255).astype('uint8')
-    scipy.misc.imsave(path, image)
+    imageio.imwrite(path, image)
