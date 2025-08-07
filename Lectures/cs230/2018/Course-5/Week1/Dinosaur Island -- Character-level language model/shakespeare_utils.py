@@ -4,7 +4,7 @@ from keras.callbacks import LambdaCallback
 from keras.models import Model, load_model, Sequential
 from keras.layers import Dense, Activation, Dropout, Input, Masking
 from keras.layers import LSTM
-from keras.utils.data_utils import get_file
+from keras.utils import get_file
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import random
@@ -28,7 +28,7 @@ def build_data(text, Tx = 40, stride = 3):
     X = []
     Y = []
 
-    ### START CODE HERE ### (¡Ö 3 lines)
+    ### START CODE HERE ### (ï¿½ï¿½ 3 lines)
     for i in range(0, len(text) - Tx, stride):
         X.append(text[i: i + Tx])
         Y.append(text[i + Tx])
@@ -129,7 +129,9 @@ X, Y = build_data(text, Tx, stride = 3)
 print("Vectorizing training set...")
 x, y = vectorization(X, Y, n_x = len(chars), char_indices = char_indices) 
 print("Loading model...")
-model = load_model('models/model_shakespeare_kiank_350_epoch.h5')
+model = load_model('models/model_shakespeare_kiank_350_epoch.h5', compile=False)
+model.compile(optimizer="adam",
+              loss="categorical_crossentropy")
 
 
 def generate_output():
