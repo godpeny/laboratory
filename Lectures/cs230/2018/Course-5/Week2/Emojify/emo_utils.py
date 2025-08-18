@@ -53,15 +53,15 @@ def convert_to_one_hot(Y, C):
 
 emoji_dictionary = {"0": "\u2764\uFE0F",    # :heart: prints a black instead of red heart depending on the font
                     "1": ":baseball:",
-                    "2": ":smile:",
-                    "3": ":disappointed:",
+                    "2": ":grinning_face:",
+                    "3": ":disappointed_face:",
                     "4": ":fork_and_knife:"}
 
 def label_to_emoji(label):
     """
     Converts a label (int or string) into the corresponding emoji code (string) ready to be printed
     """
-    return emoji.emojize(emoji_dictionary[str(label)], use_aliases=True)
+    return emoji.emojize(emoji_dictionary[str(label)])
               
     
 def print_predictions(X, pred):
