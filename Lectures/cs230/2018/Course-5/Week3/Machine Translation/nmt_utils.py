@@ -6,9 +6,10 @@ from babel.dates import format_date
 from keras.utils import to_categorical
 import keras.backend as K
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 fake = Faker()
-fake.seed(12345)
+Faker.seed(12345)
 random.seed(12345)
 
 # Define format of the data we would like to generate
@@ -169,12 +170,12 @@ def softmax(x, axis=1):
     # Raises
         ValueError: In case `dim(x) == 1`.
     """
-    ndim = K.ndim(x)
+    ndim = len(x)
     if ndim == 2:
-        return K.softmax(x)
+        return softmax(x)
     elif ndim > 2:
-        e = K.exp(x - K.max(x, axis=axis, keepdims=True))
-        s = K.sum(e, axis=axis, keepdims=True)
+        e = tf.exp(x - tf.reduce_max(x, axis=axis, keepdims=True))
+        s = tf.reduce_sum(e, axis=axis, keepdims=True)
         return e / s
     else:
         raise ValueError('Cannot apply softmax to a tensor that is 1D')
